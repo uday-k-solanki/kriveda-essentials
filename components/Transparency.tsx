@@ -25,26 +25,23 @@ const carePoints = (p: (typeof products)[number]) => [
 
 export default function Transparency() {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const p = products[active];
   const details = useMemo(() => friendlyDetails(p), [p]);
   const points = useMemo(() => carePoints(p), [p]);
 
+  // Unconditional interval — always advances on the timer, never pauses.
   useEffect(() => {
-    if (paused) return;
-    const timer = setTimeout(
+    const id = setInterval(
       () => setActive((current) => (current + 1) % products.length),
       SLIDE_MS
     );
-    return () => clearTimeout(timer);
-  }, [active, paused]);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <section
       id="transparency"
       className="relative overflow-hidden bg-botanical-deep py-28 text-ivory sm:py-40"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
     >
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[10%] top-0 h-[40vmax] w-[40vmax] rounded-full bg-[radial-gradient(circle,rgba(101,117,90,0.4),transparent_70%)]" />
@@ -94,7 +91,7 @@ export default function Transparency() {
                           className="absolute h-72 w-72 rounded-full blur-3xl"
                           style={{ background: p.accent, opacity: 0.22 }}
                         />
-                        <div className="liquid-glass relative aspect-[4/5] w-full overflow-hidden rounded-[1.75rem] p-5">
+                        <a href={`/products/${p.slug}`} className="liquid-glass relative aspect-[4/5] w-full overflow-hidden rounded-[1.75rem] p-5 transition-transform duration-500 ease-luxe hover:scale-[1.02]">
                           <span className="pointer-events-none absolute inset-x-0 top-0 h-24 rounded-t-[1.75rem] bg-gradient-to-b from-white/35 to-transparent" />
                           <span className="pointer-events-none absolute inset-0 rounded-[1.75rem] shadow-[inset_0_0_42px_rgba(255,255,255,0.12)]" />
                           <Image
@@ -118,16 +115,18 @@ export default function Transparency() {
                               {p.name}
                             </p>
                           </div>
-                        </div>
+                        </a>
                       </div>
 
                       <div>
                         <p className="text-[0.68rem] font-medium uppercase tracking-luxe text-gold-light">
                           {p.type}
                         </p>
-                        <h3 className="mt-2 font-display text-4xl text-ivory sm:text-5xl">
-                          {p.name}
-                        </h3>
+                        <a href={`/products/${p.slug}`} className="group mt-2 inline-block">
+                          <h3 className="font-display text-4xl text-ivory transition-colors duration-300 group-hover:text-gold-light sm:text-5xl">
+                            {p.name}
+                          </h3>
+                        </a>
                         <p className="mt-3 text-pretty text-base leading-relaxed text-ivory/70">
                           {p.tagline}
                         </p>
@@ -161,22 +160,31 @@ export default function Transparency() {
                       ))}
                     </div>
 
-                    <div className="mt-7 flex items-center gap-2">
-                      {products.map((prod, i) => (
-                        <button
-                          key={prod.slug}
-                          onClick={() => setActive(i)}
-                          onFocus={() => setPaused(true)}
-                          onBlur={() => setPaused(false)}
-                          aria-label={`Show ${prod.name}`}
-                          aria-current={active === i}
-                          className={`h-1.5 rounded-full transition-all duration-500 ${
-                            active === i
-                              ? "w-10 bg-gold-light"
-                              : "w-2 bg-ivory/25 hover:bg-ivory/50"
-                          }`}
-                        />
-                      ))}
+                    <div className="mt-7 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        {products.map((prod, i) => (
+                          <button
+                            key={prod.slug}
+                            onClick={() => setActive(i)}
+                            aria-label={`Show ${prod.name}`}
+                            aria-current={active === i}
+                            className={`h-1.5 rounded-full transition-all duration-500 ${
+                              active === i
+                                ? "w-10 bg-gold-light"
+                                : "w-2 bg-ivory/25 hover:bg-ivory/50"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <a
+                        href={`/products/${p.slug}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-gold-light/30 px-5 py-2 text-[0.68rem] font-medium uppercase tracking-wide2 text-gold-light transition-all duration-500 ease-luxe hover:border-gold-light/70 hover:bg-white/5"
+                      >
+                        View Product
+                        <svg width="12" height="8" viewBox="0 0 14 10" fill="none" aria-hidden>
+                          <path d="M1 5h11M8 1l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </a>
                     </div>
                   </motion.div>
                 </AnimatePresence>

@@ -14,9 +14,11 @@ export type Product = {
   shelf: string;
   tagline: string;
   benefit: string;
-  bottle?: string; // real product photography (essential oils)
-  botanicalImage: string; // ingredient / landscape photography
-  accent: string; // exhibit lighting tint
+  price: number;           // matches Shopify variant price
+  bottle?: string;
+  botanicalImage: string;
+  hoverImage?: string;
+  accent: string;
 };
 
 export const products: Product[] = [
@@ -40,8 +42,10 @@ export const products: Product[] = [
     shelf: "2–3 years, cool & dark",
     tagline: "A crisp herbal oil for focused, refreshing rituals.",
     benefit: "Often chosen for scalp massage, hair-care blends, and a clean herbal aroma.",
-    bottle: "/images/rosemary.png",
+    price: 229,
+    bottle: "/images/botanical/rosemaryfinal.png",
     botanicalImage: "/images/botanical/rosemary.jpg",
+    hoverImage: "/images/botanical/hover/rosemary_hover.png",
     accent: "#6f7d4a",
   },
   {
@@ -64,8 +68,10 @@ export const products: Product[] = [
     shelf: "1–2 years, sealed & cool",
     tagline: "A sharp, clean oil for clarifying care.",
     benefit: "Popular in blemish-prone skin routines, scalp care, and fresh cleansing blends.",
-    bottle: "/images/tea_tree.png",
+    price: 270,
+    bottle: "/images/botanical/teatreefinal.png",
     botanicalImage: "/images/botanical/teatree.jpg",
+    hoverImage: "/images/botanical/hover/teatree_hover.png",
     accent: "#7c7f3e",
   },
   {
@@ -88,8 +94,10 @@ export const products: Product[] = [
     shelf: "2–3 years, cool & dark",
     tagline: "Soft floral calm, bottled simply.",
     benefit: "Used for evening rituals, bath blends, massage oils, and a gentle floral scent.",
-    bottle: "/images/lavender.png",
+    price: 249,
+    bottle: "/images/botanical/lavenderfinal.png",
     botanicalImage: "/images/botanical/lavender.jpg",
+    hoverImage: "/images/botanical/hover/lavender_hover.png",
     accent: "#7d6aa3",
   },
   {
@@ -112,7 +120,9 @@ export const products: Product[] = [
     shelf: "18–24 months",
     tagline: "A familiar, nourishing carrier with a naturally sweet note.",
     benefit: "Works well for hair oiling, body massage, and simple everyday moisture.",
-    botanicalImage: "/images/botanical/coconut.jpg",
+    price: 249,
+    botanicalImage: "/images/botanical/coconut.png",
+    hoverImage: "/images/botanical/hover/coconut_hover.png",
     accent: "#c9b486",
   },
   {
@@ -135,7 +145,9 @@ export const products: Product[] = [
     shelf: "12–18 months",
     tagline: "Light, smooth, and easy to blend.",
     benefit: "A gentle carrier for body massage, dry-feel skin care, and essential-oil dilution.",
-    botanicalImage: "/images/botanical/almond.jpg",
+    price: 369,
+    botanicalImage: "/images/botanical/almond.png",
+    hoverImage: "/images/botanical/hover/almond_hover.png",
     accent: "#d8c39b",
   },
   {
@@ -158,7 +170,9 @@ export const products: Product[] = [
     shelf: "3–5 years — the longest of any carrier",
     tagline: "A stable liquid wax with a clean, light finish.",
     benefit: "Suited to facial blends, beard care, and balanced moisture without heaviness.",
-    botanicalImage: "/images/botanical/jojoba.jpg",
+    price: 299,
+    botanicalImage: "/images/botanical/jojoba.png",
+    hoverImage: "/images/botanical/hover/jojoba_hover.png",
     accent: "#cda94e",
   },
 ];

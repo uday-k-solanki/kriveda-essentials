@@ -66,8 +66,8 @@ html.lenis body {
   .glass {
     background: linear-gradient(
       135deg,
-      rgba(255, 252, 245, 0.55),
-      rgba(247, 241, 231, 0.28)
+      rgba(160, 160, 146, 0.43),
+      rgba(255, 249, 240, 0.401)
     );
     backdrop-filter: blur(22px) saturate(135%);
     -webkit-backdrop-filter: blur(22px) saturate(135%);

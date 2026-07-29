@@ -4,6 +4,8 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
+import ScrollProgress from "@/components/ScrollProgress";
+
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -30,6 +32,11 @@ export const metadata: Metadata = {
     "transparency",
     "KRIVEDA",
   ],
+  icons: {
+    icon:"/icons/favicon.png",
+    shortcut: "/icons/favicon.png",
+    apple: "/icons/favicon.png",
+  },
   openGraph: {
     title: "KRIVEDA — Nothing Hidden",
     description:
@@ -55,6 +62,7 @@ export default function RootLayout({
         <CartProvider>
           <SmoothScroll>{children}</SmoothScroll>
           <CartDrawer />
+          <ScrollProgress />
         </CartProvider>
       </body>
     </html>

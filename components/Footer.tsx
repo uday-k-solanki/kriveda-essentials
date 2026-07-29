@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import Reveal from "./Reveal";
 
 const journal = [
@@ -94,53 +95,72 @@ export default function Footer() {
             </p>
           </Reveal>
 
-          {/* Newsletter */}
+          {/* Contact Form */}
           <Reveal delay={0.12}>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mt-12 flex max-w-md flex-col gap-3 sm:flex-row"
-            >
-              <input
-                type="email"
-                required
-                placeholder="Your email"
-                aria-label="Email address"
-                className="w-full rounded-full border border-ivory/20 bg-ivory/5 px-6 py-4 text-sm text-ivory placeholder:text-ivory/40 outline-none transition-colors focus:border-gold-light/60"
-              />
-              <button
-                type="submit"
-                className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-[0.7rem] font-medium uppercase tracking-wide2 text-botanical-deep transition-transform duration-500 ease-luxe hover:-translate-y-0.5"
-              >
-                Subscribe
-              </button>
-            </form>
-            <p className="mt-3 text-xs text-ivory/45">
-              Field notes, product care, and batch updates.
-            </p>
+            <ContactForm />
           </Reveal>
 
           {/* Link columns */}
           <div className="mt-20 grid grid-cols-2 gap-10 border-t border-ivory/12 py-14 sm:grid-cols-4">
             <FooterCol
               title="Explore"
-              links={["Our Philosophy", "Collection", "Origins", "Journal"]}
+              links={[
+                { label: "Our Story", href: "#story" },
+                { label: "Collection", href: "#collection" },
+                { label: "Origins", href: "#origins" },
+                { label: "Journal", href: "#journal" },
+              ]}
             />
             <FooterCol
               title="The Oils"
-              links={["Rosemary", "Tea Tree", "Lavender", "Carrier oils"]}
+              links={[
+                { label: "Rosemary", href: "/catalogue" },
+                { label: "Tea Tree", href: "/catalogue" },
+                { label: "Lavender", href: "/catalogue" },
+                { label: "Carrier Oils", href: "/catalogue" },
+              ]}
             />
             <FooterCol
               title="Company"
-              links={["Provenance", "Batch notes", "Sustainability", "Contact"]}
+              links={[
+                { label: "Our Philosophy", href: "#story" },
+                { label: "Sustainability", href: "#story" },
+                { label: "Batch Notes", href: "#journal" },
+                { label: "Contact Us", href: "mailto:hello@kriveda.com" },
+              ]}
             />
             <div>
               <h4 className="text-[0.62rem] uppercase tracking-luxe text-ivory/45">
                 Contact
               </h4>
               <ul className="mt-5 space-y-3 text-sm text-ivory/75">
-                <li>hello@kriveda.com</li>
-                <li>+91 00000 00000</li>
+                <li>
+                  <a href="mailto:krivedaessentials@gmail.com" className="transition-colors hover:text-gold-light">
+                    krivedaessentials@gmail.com
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+917016121585" className="transition-colors hover:text-gold-light">
+                    +91 7016121585
+                  </a>
+                </li>
                 <li className="text-ivory/50">Crafted in India</li>
+              </ul>
+              {/* Social links */}
+              <h4 className="mt-8 text-[0.62rem] uppercase tracking-luxe text-ivory/45">
+                Follow
+              </h4>
+              <ul className="mt-5 space-y-3">
+                <li>
+                  <a href="https://www.instagram.com/krivedaessentials_/?hl=en" target="_blank" rel="noopener noreferrer" className="text-sm text-ivory/75 transition-colors hover:text-gold-light">
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.facebook.com/share/1LBN2KQqg7/" target="_blank" rel="noopener noreferrer" className="text-sm text-ivory/75 transition-colors hover:text-gold-light">
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -148,22 +168,25 @@ export default function Footer() {
           {/* Base bar */}
           <div className="flex flex-col items-center justify-between gap-6 border-t border-ivory/12 py-10 sm:flex-row">
             <Image
-              src="/images/logo.png"
+              src="/images/favicon.png"
               alt="KRIVEDA"
-              width={130}
-              height={28}
-              className="h-6 w-auto"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-contain"
             />
             <p className="text-[0.65rem] uppercase tracking-wide2 text-ivory/45">
               © {new Date().getFullYear()} KRIVEDA · Steam distilled · Cold
               pressed · Nothing hidden
             </p>
             <div className="flex gap-5 text-[0.65rem] uppercase tracking-wide2 text-ivory/55">
-              <a href="#" className="transition-colors hover:text-gold-light">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-gold-light">
                 Instagram
               </a>
               <a href="#" className="transition-colors hover:text-gold-light">
-                Privacy
+                Privacy Policy
+              </a>
+              <a href="#" className="transition-colors hover:text-gold-light">
+                Terms
               </a>
             </div>
           </div>
@@ -173,7 +196,7 @@ export default function Footer() {
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: string[] }) {
+function FooterCol({ title, links }: { title: string; links: { label: string; href: string }[] }) {
   return (
     <div>
       <h4 className="text-[0.62rem] uppercase tracking-luxe text-ivory/45">
@@ -181,16 +204,95 @@ function FooterCol({ title, links }: { title: string; links: string[] }) {
       </h4>
       <ul className="mt-5 space-y-3">
         {links.map((l) => (
-          <li key={l}>
+          <li key={l.label}>
             <a
-              href="#"
+              href={l.href}
               className="text-sm text-ivory/75 transition-colors hover:text-gold-light"
             >
-              {l}
+              {l.label}
             </a>
           </li>
         ))}
       </ul>
     </div>
+  );
+}
+
+
+function ContactForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      if (res.ok) {
+        setStatus("sent");
+        setName(""); setEmail(""); setMessage("");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-12 max-w-md space-y-3">
+      <div className="flex gap-3">
+        <input
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name"
+          aria-label="Name"
+          className="w-full rounded-full border border-ivory/20 bg-ivory/5 px-5 py-3.5 text-sm text-ivory placeholder:text-ivory/40 outline-none transition-colors focus:border-gold-light/60"
+        />
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Your email"
+          aria-label="Email"
+          className="w-full rounded-full border border-ivory/20 bg-ivory/5 px-5 py-3.5 text-sm text-ivory placeholder:text-ivory/40 outline-none transition-colors focus:border-gold-light/60"
+        />
+      </div>
+      <textarea
+        required
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Your message"
+        aria-label="Message"
+        rows={4}
+        className="w-full resize-none rounded-2xl border border-ivory/20 bg-ivory/5 px-5 py-3.5 text-sm text-ivory placeholder:text-ivory/40 outline-none transition-colors focus:border-gold-light/60"
+      />
+      <div className="flex items-center gap-4">
+        <button
+          type="submit"
+          disabled={status === "sending" || status === "sent"}
+          className="inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 text-[0.7rem] font-medium uppercase tracking-wide2 text-botanical-deep transition-all duration-500 ease-luxe hover:-translate-y-0.5 disabled:opacity-60"
+        >
+          {status === "sending" ? "Sending…" : status === "sent" ? "Message Sent ✓" : "Send Message"}
+        </button>
+        {status === "error" && (
+          <p className="text-xs text-red-400">Something went wrong. Please try again.</p>
+        )}
+      </div>
+      {status === "sent" && (
+        <p className="text-xs text-ivory/50">
+          We've received your message and will get back to you soon.
+        </p>
+      )}
+    </form>
   );
 }

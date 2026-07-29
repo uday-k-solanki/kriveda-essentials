@@ -61,7 +61,7 @@ export default function CollectionsTeaser() {
                       {c.headline}
                     </h3>
 
-                    <p className="mt-4 text-pretty text-base leading-relaxed text-ivory/88 drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
+                    <p className="mt-4 text-pretty text-base leading-relaxed text-ivory/60 drop-shadow-[0_2px_12px_rgba(0,0,0,0.35)]">
                       {c.body}
                     </p>
 

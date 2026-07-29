@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
-  AnimatePresence,
   motion,
   useReducedMotion,
   useScroll,
@@ -18,71 +17,89 @@ import Particles from "./Particles";
  */
 const slides = [
   {
-    product: "/images/lavender.png",
+    product: "/images/botanical/lavenderfinal.png",
     scene: "/images/scenery/kashmir.jpg",
     name: "Lavender",
+    slug: "lavender",
     origin: "Kashmir Valley",
-    note: "Steam-distilled from highland blooms.",
     glow: "rgba(125,106,163,0.5)",
-    fill: 0.88,
   },
   {
-    product: "/images/rosemary.png",
-    scene: "/images/scenery/himachal.jpg",
-    name: "Rosemary",
-    origin: "Himachal Foothills",
-    note: "Drawn from mountain-grown herb.",
-    glow: "rgba(111,125,74,0.5)",
-    fill: 0.82,
-  },
-  {
-    product: "/images/tea_tree.png",
+    product: "/images/botanical/rosemaryfinal.png",
     scene: "/images/scenery/nilgiri.jpg",
-    name: "Tea Tree",
+    name: "Rosemary",
+    slug: "rosemary",
     origin: "Nilgiri Hills",
-    note: "Cold-pressed from misted leaves.",
+    glow: "rgba(111,125,74,0.5)",
+  },
+  {
+    product: "/images/botanical/teatreefinal.png",
+    scene: "/images/scenery/wetland.jpg",
+    name: "Tea Tree",
+    slug: "tea-tree",
+    origin: "New South Wales",
     glow: "rgba(124,127,62,0.5)",
-    fill: 0.817,
+  },
+  {
+    product: "/images/botanical/coconut.png",
+    scene: "/images/scenery/kerala.jpg",
+    name: "Virgin Coconut",
+    slug: "virgin-coconut",
+    origin: "Kerala Coast",
+    glow: "rgba(201,180,134,0.5)",
+  },
+  {
+    product: "/images/botanical/almond.png",
+    scene: "/images/scenery/himachal.jpg",
+    name: "Sweet Almond",
+    slug: "sweet-almond",
+    origin: "Himachal Pradesh",
+    glow: "rgba(216,195,155,0.5)",
+  },
+  {
+    product: "/images/botanical/jojoba.png",
+    scene: "/images/scenery/desert.jpg",
+    name: "Jojoba",
+    slug: "jojoba",
+    origin: "Sonoran Desert",
+    glow: "rgba(205,169,78,0.5)",
   },
 ];
 
-const RESHUFFLE_MS = 4200;
+const RESHUFFLE_MS = 3600;
 
-// Intro phases:
-//  0 center  — one bottle scales up on a dark screen
-//  1 emerge  — two more bottles rise from behind it
-//  2 reveal  — scenery fades in + zooms out, bottles spread to carousel slots
 type Phase = 0 | 1 | 2;
 
-// Final resting place of each card, relative to the centered one.
-function slot(rel: number, gap: number) {
+// Shows center + right + left, hides the other 3 behind center
+function slot(rel: number, gap: number, total: number) {
   if (rel === 0)
     return { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 30 };
   if (rel === 1)
-    return { x: gap, y: 20, scale: 0.9, rotate: 6, opacity: 0.7, zIndex: 20 };
-  return { x: -gap, y: 20, scale: 0.9, rotate: -6, opacity: 0.7, zIndex: 20 };
+    return { x: gap, y: 22, scale: 0.88, rotate: 6, opacity: 0.65, zIndex: 20 };
+  if (rel === total - 1)
+    return { x: -gap, y: 22, scale: 0.88, rotate: -6, opacity: 0.65, zIndex: 20 };
+  return { x: 0, y: 0, scale: 0.7, rotate: 0, opacity: 0, zIndex: 10 };
 }
 
 // Card target during the intro morph, by phase.
-function introPos(phase: Phase, rel: number, gap: number) {
+function introPos(phase: Phase, rel: number, gap: number, total: number) {
   if (phase === 0)
     return rel === 0
       ? { x: 0, y: 0, scale: 1.35, rotate: 0, opacity: 1, zIndex: 30 }
-      : { x: 0, y: 0, scale: 0.95, rotate: 0, opacity: 0, zIndex: 20 };
+      : { x: 0, y: 0, scale: 0.95, rotate: 0, opacity: 0, zIndex: 10 };
   if (phase === 1) {
     if (rel === 0) return { x: 0, y: 0, scale: 1.3, rotate: 0, opacity: 1, zIndex: 30 };
-    return rel === 1
-      ? { x: gap * 0.32, y: 8, scale: 1.0, rotate: 3, opacity: 0.85, zIndex: 20 }
-      : { x: -gap * 0.32, y: 8, scale: 1.0, rotate: -3, opacity: 0.85, zIndex: 20 };
+    if (rel === 1) return { x: gap * 0.32, y: 8, scale: 1.0, rotate: 3, opacity: 0.85, zIndex: 20 };
+    if (rel === total - 1) return { x: -gap * 0.32, y: 8, scale: 1.0, rotate: -3, opacity: 0.85, zIndex: 20 };
+    return { x: 0, y: 0, scale: 0.7, rotate: 0, opacity: 0, zIndex: 10 };
   }
-  return slot(rel, gap);
+  return slot(rel, gap, total);
 }
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
   const [gap, setGap] = useState(170);
   const [phase, setPhase] = useState<Phase>(reduce ? 2 : 0);
@@ -94,14 +111,20 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  // ---- Layered parallax (different speeds = depth) ----
-  const sceneY = useTransform(scrollYProgress, [0, 1], [0, 70]);
-  const scrollScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const raysY = useTransform(scrollYProgress, [0, 1], [0, -34]);
-  const motesY = useTransform(scrollYProgress, [0, 1], [0, -70]);
-  const headlineY = useTransform(scrollYProgress, [0, 1], [0, -150]);
-  const cardsY = useTransform(scrollYProgress, [0, 1], [0, -210]);
-  const copyY = useTransform(scrollYProgress, [0, 1], [0, -110]);
+  // Detect touch device — disable parallax on mobile to prevent flicker
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  // ---- Layered parallax — zeroed on mobile ----
+  const sceneY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [0, 70]);
+  const scrollScale = useTransform(scrollYProgress, [0, 1], isMobile ? [1, 1] : [1, 1.12]);
+  const raysY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [0, -34]);
+  const motesY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [0, -70]);
+  const headlineY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [0, -150]);
+  const cardsY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [0, -210]);
+  const copyY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [0, -110]);
   const fadeOut = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const glowOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
@@ -125,15 +148,15 @@ export default function Hero() {
     };
   }, [reduce]);
 
-  // Auto-reshuffle (only after the intro, pauses on hover).
+  // Unconditional interval — always advances, never pauses, never resets on hover.
   useEffect(() => {
-    if (!introDone || paused || hovered !== null || reduce) return;
-    const t = setTimeout(
+    if (reduce) return;
+    const id = setInterval(
       () => setActive((a) => (a + 1) % slides.length),
       RESHUFFLE_MS
     );
-    return () => clearTimeout(t);
-  }, [active, paused, hovered, reduce, introDone]);
+    return () => clearInterval(id);
+  }, [reduce]);
 
   const current = slides[active];
 
@@ -141,13 +164,11 @@ export default function Hero() {
     <section
       id="top"
       ref={ref}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
       className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-botanical-deep px-5 pb-24 pt-28 sm:pt-32"
     >
       {/* ---------- Background scenery slideshow (slow parallax + intro zoom-out) ---------- */}
       <motion.div
-        style={{ y: sceneY, scale: scrollScale }}
+        style={{ y: sceneY, scale: scrollScale, willChange: "transform" }}
         className="pointer-events-none absolute inset-0 z-0"
       >
         <motion.div
@@ -179,14 +200,13 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* ---------- Overlay wash + tinted product glow + soft beige edge + dissolve ---------- */}
-      <motion.div
+      {/* ---------- Overlay wash ---------- */}
+      <div
         className="pointer-events-none absolute inset-0 z-[1]"
-        initial={false}
-        animate={{ opacity: introDone ? 1 : 0 }}
-        transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
+        style={{ opacity: introDone ? 1 : 0, transition: "opacity 1.3s cubic-bezier(0.16,1,0.3,1)" }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-botanical-deep/72 via-botanical-deep/48 to-botanical-deep/82" />
+        <div className="absolute inset-0 bg-gradient-to-b from-botanical-deep/85 via-botanical-deep/60 to-botanical-deep/85" />
+        <div className="absolute inset-x-0 top-0 h-[55%] bg-gradient-to-b from-botanical-deep/70 to-transparent" />
 
         {/* roving glow that tints to the active oil */}
         <motion.div
@@ -201,17 +221,14 @@ export default function Hero() {
           />
         </motion.div>
 
-        {/* soft beige edge vignette — feathers the image into the page */}
-        <div className="absolute inset-0 shadow-[inset_0_0_70px_14px_rgba(246,241,231,0.55)] [background:radial-gradient(125%_125%_at_50%_48%,transparent_72%,rgba(246,241,231,0.6))]" />
-
-        {/* dissolve into the ivory section below */}
+        {/* bottom-only dissolve into the ivory section below */}
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ivory" />
-      </motion.div>
+      </div>
 
-      {/* ---------- Angled sun rays falling from the top-left corner onto the headline ---------- */}
+      {/* ---------- Angled sun rays ---------- */}
       <motion.div
         aria-hidden
-        style={{ y: raysY, opacity: introDone ? undefined : 0 }}
+        style={{ y: raysY, opacity: introDone ? undefined : 0, willChange: "transform" }}
         className="pointer-events-none absolute inset-0 z-[3] overflow-hidden"
       >
         <div
@@ -230,10 +247,10 @@ export default function Hero() {
         <div className="absolute -left-[8%] -top-[10%] h-[34vmax] w-[34vmax] rounded-full bg-[radial-gradient(circle,rgba(255,244,210,0.4),transparent_65%)] blur-2xl" />
       </motion.div>
 
-      {/* ---------- Film grain ---------- */}
+      {/* ---------- Film grain — disabled on mobile to prevent flicker ---------- */}
       <div
         aria-hidden
-        className={`pointer-events-none absolute inset-0 z-[2] opacity-[0.09] mix-blend-soft-light ${reduce ? "" : "animate-grain-shift"}`}
+        className={`pointer-events-none absolute inset-0 z-[2] opacity-[0.09] mix-blend-soft-light ${reduce || isMobile ? "" : "animate-grain-shift"}`}
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
@@ -241,7 +258,7 @@ export default function Hero() {
         }}
       />
 
-      <motion.div style={{ y: motesY }} className="pointer-events-none absolute inset-0 z-[2]">
+      <motion.div style={{ y: motesY, willChange: "transform" }} className="pointer-events-none absolute inset-0 z-[2]">
         <Particles count={20} />
       </motion.div>
 
@@ -257,40 +274,46 @@ export default function Hero() {
           style={{ y: headlineY, opacity: fadeOut }}
           className="flex flex-col items-center"
         >
-          <motion.span
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: introDone ? 1 : 0, y: introDone ? 0 : 14 }}
-            transition={{ duration: 0.9, delay: introDone ? 0.15 : 0, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-5 flex items-center gap-3 font-sans text-[0.7rem] uppercase tracking-luxe text-gold-pale"
-          >
-            <span className="h-px w-8 bg-gold-pale/70 " />
-            <span className="text-sm font-medium text-gold-pale/90 sm:text-base">
-              Steam distilled · Cold pressed · Single ingredient
-            </span>
-            <span className="h-px w-8 bg-gold-pale/50" />
-          </motion.span> 
+          {/* Dark glass backdrop for the headline — always readable regardless of bg image tone */}
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-botanical-deep/60 px-8 py-6 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:px-12 sm:py-8">
+            {/* Specular highlight */}
+            <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-          <h1 className="font-display text-[clamp(2.5rem,8vw,5.8rem)] font-light leading-[0.9] tracking-[-0.02em] text-ivory-50 [text-shadow:0_0_34px_rgba(20,28,20,0.3)]">
-            <Word show={introDone} delay={0.1}>
-              The Earth
-            </Word>{" "}
-            <Word show={introDone} delay={0.24}>
-              made it<span className="text-gilded">.</span>
-            </Word>
-          </h1>
+            <motion.span
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: introDone ? 1 : 0, y: introDone ? 0 : 14 }}
+              transition={{ duration: 0.9, delay: introDone ? 0.15 : 0, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-5 flex items-center justify-center gap-3 font-sans text-[0.7rem] uppercase tracking-luxe text-gold-pale"
+            >
+              <span className="h-px w-8 bg-gold-pale/70" />
+              <span className="text-sm font-medium text-gold-pale/90 sm:text-base">
+                Steam distilled · Cold pressed · Single ingredient
+              </span>
+              <span className="h-px w-8 bg-gold-pale/50" />
+            </motion.span>
+
+            <h1 className="font-display text-[clamp(2.5rem,8vw,5.8rem)] font-light leading-[0.9] tracking-[-0.02em] text-ivory">
+              <Word show={introDone} delay={0.1}>
+                The Earth
+              </Word>{" "}
+              <Word show={introDone} delay={0.24}>
+                made it<span className="text-gilded">.</span>
+              </Word>
+            </h1>
+          </div>
         </motion.div>
 
         {/* ---------- Floating liquid-glass product cards ---------- */}
         <motion.div
           style={{ y: cardsY }}
-          className="relative mx-auto mt-7 flex h-[208px] w-full max-w-2xl items-start justify-center [--bh:104px] [--ch:180px] [--cw:124px] sm:mt-8 sm:h-[224px] sm:[--bh:118px] sm:[--ch:196px] sm:[--cw:140px]"
+          className="relative mx-auto mt-7 flex h-[236px] w-full max-w-2xl items-start justify-center [--bh:122px] [--ch:208px] [--cw:144px] sm:mt-8 sm:h-[256px] sm:[--bh:138px] sm:[--ch:228px] sm:[--cw:162px]"
           role="region"
           aria-roledescription="carousel"
           aria-label="Featured oils by origin"
         >
           {slides.map((b, i) => {
             const rel = (i - active + slides.length) % slides.length;
-            const pos = introDone ? slot(rel, gap) : introPos(phase, rel, gap);
+            const pos = introDone ? slot(rel, gap, slides.length) : introPos(phase, rel, gap, slides.length);
             const isCenter = rel === 0;
             return (
               <motion.button
@@ -301,7 +324,7 @@ export default function Hero() {
                 onMouseLeave={() => setHovered(null)}
                 onFocus={() => setHovered(i)}
                 onBlur={() => setHovered(null)}
-                aria-label={`${b.name} from ${b.origin}. ${b.note}`}
+                aria-label={`${b.name} from ${b.origin}`}
                 aria-current={isCenter}
                 initial={{ x: 0, y: 0, scale: 0.4, rotate: 0, opacity: 0 }}
                 animate={pos}
@@ -313,23 +336,16 @@ export default function Hero() {
                 }}
                 className="absolute inset-x-0 mx-auto cursor-pointer rounded-[26px] outline-none focus-visible:ring-2 focus-visible:ring-gold-pale focus-visible:ring-offset-2 focus-visible:ring-offset-botanical-deep"
               >
-                {/* gentle continuous float (composes with the spring position) */}
                 <div
                   className={`relative h-full w-full ${reduce || !introDone ? "" : "animate-float-card"}`}
                   style={{ animationDelay: `${i * 1.1}s` }}
                 >
-                  {/* glow halo behind the centered bottle */}
                   <div
                     className="absolute inset-0 -z-10 scale-125 rounded-full blur-2xl transition-opacity duration-700"
                     style={{ background: b.glow, opacity: isCenter ? 0.85 : 0.25 }}
                   />
-
-                  {/* the liquid-glass card */}
                   <div className="liquid-glass relative flex h-full w-full flex-col overflow-hidden rounded-[26px] p-3">
-                    {/* specular top edge highlight */}
                     <span className="pointer-events-none absolute inset-x-0 top-0 h-12 rounded-t-[26px] bg-gradient-to-b from-white/45 to-transparent" />
-
-                    {/* bottle — same target size for all three, centered */}
                     <div className="flex flex-1 items-center justify-center">
                       <Image
                         src={b.product}
@@ -338,40 +354,45 @@ export default function Hero() {
                         height={420}
                         priority={i === 0}
                         className="relative w-auto object-contain drop-shadow-[0_20px_24px_rgba(8,14,9,0.55)]"
-                        style={{ height: `calc(var(--bh) / ${b.fill})` }}
+                        style={{ height: "var(--bh)" }}
                       />
                     </div>
-
-                    <figcaption className="relative pb-0.5 text-center font-display text-[0.95rem] text-ivory drop-shadow-[0_1px_6px_rgba(8,14,9,0.7)]">
-                      {b.name}
-                    </figcaption>
-                  </div>
-
-                  {/* ---------- Hover liquid label popup ---------- */}
-                  <AnimatePresence>
-                    {hovered === i && introDone && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.9 }}
-                        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                        className="pointer-events-none absolute -top-3 left-1/2 z-50 -translate-x-1/2 -translate-y-full"
-                      >
-                        <div className="glass-dark whitespace-nowrap rounded-full px-4 py-2 text-[0.72rem] tracking-wide text-ivory">
-                          <span className="text-gold-pale">{b.origin}</span>
-                          <span className="mx-1.5 text-ivory/40">·</span>
-                          {b.note}
-                        </div>
-                        <span className="absolute left-1/2 top-full h-4 w-px -translate-x-1/2 bg-gradient-to-b from-gold-pale/70 to-transparent" />
-                        <span className="absolute left-1/2 top-full mt-4 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-gold-pale" />
-                      </motion.div>
+                    {/* Name label — only on center card */}
+                    {isCenter && introDone && (
+                      <div className="pb-1 text-center">
+                        <p className="text-[0.55rem] uppercase tracking-luxe text-gold-pale/80">{b.origin}</p>
+                        <p className="font-display text-[0.95rem] leading-tight text-ivory/90">{b.name}</p>
+                      </div>
                     )}
-                  </AnimatePresence>
+                  </div>
                 </div>
               </motion.button>
             );
           })}
         </motion.div>
+
+        {/* Progress dots */}
+        {introDone && (
+          <motion.div
+            style={{ y: cardsY }}
+            className="mt-5 flex items-center gap-1.5"
+            initial={false}
+            animate={{ opacity: introDone ? 1 : 0 }}
+          >
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                aria-label={`Go to ${slides[i].name}`}
+                className={`rounded-full transition-all duration-500 ease-luxe ${
+                  i === active
+                    ? "h-1.5 w-8 bg-gold-pale"
+                    : "h-1.5 w-1.5 bg-ivory/30 hover:bg-ivory/60"
+                }`}
+              />
+            ))}
+          </motion.div>
+        )}
 
         {/* ---------- Subheading + CTAs (reveal after intro) ---------- */}
         <motion.div
