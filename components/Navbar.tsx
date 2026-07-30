@@ -70,15 +70,20 @@ export default function Navbar() {
         }`}
         aria-label="Primary"
       >
-        {/* Logo */}
-        <a href="/" className="relative flex shrink-0 items-center" aria-label="KRIVEDA — home">
+        {/* Logo — centered on mobile, left-aligned on desktop */}
+        <a
+          href="/"
+          className="relative flex shrink-0 items-center lg:static lg:translate-x-0 max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2"
+          aria-label="KRIVEDA — home"
+        >
           <Image
             src="/images/logo.png"
             alt="KRIVEDA"
             width={400}
             height={30}
             priority
-            className="h-[54px] w-auto sm:h-[60px] lg:h-[68px]"          />
+            className="h-[54px] w-auto scale-[1.4] sm:h-[60px] lg:h-[68px] lg:scale-100"
+          />
         </a>
 
         {/* Desktop links */}

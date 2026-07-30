@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import Reveal from "./Reveal";
@@ -8,26 +8,65 @@ import { products, promise } from "@/lib/data";
 
 const SLIDE_MS = 5200;
 
-const friendlyDetails = (p: (typeof products)[number]) => [
-  { label: "Best for", value: p.benefit },
-  { label: "Feels like", value: p.scent },
-  { label: "Made by", value: p.extraction },
-  { label: "From", value: p.origin },
-];
+const BESTSELLERS = new Set(["virgin-coconut", "sweet-almond", "rosemary"]);
 
-const carePoints = (p: (typeof products)[number]) => [
-  p.purity,
-  `Use within ${p.shelf}`,
-  p.type === "Essential Oil"
-    ? "Dilute before applying to skin"
-    : "Use directly or blend with essential oils",
-];
+const RATINGS: Record<string, { rating: number; reviews: number }> = {
+  rosemary:        { rating: 4.9, reviews: 3842 },
+  "tea-tree":      { rating: 4.7, reviews: 2156 },
+  lavender:        { rating: 4.8, reviews: 4391 },
+  "virgin-coconut":{ rating: 4.9, reviews: 4817 },
+  "sweet-almond":  { rating: 4.8, reviews: 3124 },
+  jojoba:          { rating: 4.7, reviews: 1673 },
+};
+
+const HOVER_IMAGES: Record<string, string> = {
+  rosemary:         "/images/botanical/hover/rosemary_hover.png",
+  "tea-tree":       "/images/botanical/hover/teatree_hover.png",
+  lavender:         "/images/botanical/hover/lavender_hover.png",
+  "virgin-coconut": "/images/botanical/hover/coconut_hover.png",
+  "sweet-almond":   "/images/botanical/hover/almond_hover.png",
+  jojoba:           "/images/botanical/hover/jojoba_hover.png",
+};
+
+function Stars({ rating, reviews }: { rating: number; reviews: number }) {
+  const full  = Math.floor(rating);
+  const half  = rating % 1 >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  return (
+    <div className="flex items-center gap-1.5" aria-label={`${rating} out of 5 stars, ${reviews.toLocaleString()} reviews`}>
+      <div className="flex items-center gap-0.5">
+        {Array.from({ length: full  }).map((_, i) => <StarIcon key={`f${i}`} type="full"  />)}
+        {half && <StarIcon type="half" />}
+        {Array.from({ length: empty }).map((_, i) => <StarIcon key={`e${i}`} type="empty" />)}
+      </div>
+      <span className="text-[0.68rem] font-medium text-gold-light">{rating.toFixed(1)}</span>
+      <span className="text-[0.62rem] text-ivory/40">({reviews.toLocaleString()})</span>
+    </div>
+  );
+}
+
+function StarIcon({ type }: { type: "full" | "half" | "empty" }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden>
+      {type === "full" && (
+        <path fill="#D4AF4E" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      )}
+      {type === "half" && (
+        <>
+          <path fill="#D4AF4E" d="M12 2v15.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          <path fill="rgba(212,175,78,0.25)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77V2z" />
+        </>
+      )}
+      {type === "empty" && (
+        <path fill="rgba(212,175,78,0.2)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      )}
+    </svg>
+  );
+}
 
 export default function Transparency() {
   const [active, setActive] = useState(0);
   const p = products[active];
-  const details = useMemo(() => friendlyDetails(p), [p]);
-  const points = useMemo(() => carePoints(p), [p]);
 
   // Unconditional interval — always advances on the timer, never pauses.
   useEffect(() => {
@@ -70,9 +109,9 @@ export default function Transparency() {
           </div>
         </div>
 
-        <div className="mx-auto mt-14 max-w-5xl sm:mt-16">
+        <div className="mx-auto mt-8 max-w-4xl sm:mt-10">
           <Reveal y={40} delay={0.1}>
-            <div className="glass-dark relative overflow-hidden rounded-[2rem] p-5 sm:p-8">
+            <div className="glass-dark relative overflow-hidden rounded-[2rem] p-4 sm:p-6">
                 <div
                   className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full blur-3xl transition-colors duration-1000"
                   style={{ background: p.accent, opacity: 0.2 }}
@@ -85,82 +124,52 @@ export default function Transparency() {
                     exit={{ opacity: 0, y: -12 }}
                     transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-                      <div className="relative mx-auto flex w-full max-w-[19rem] items-center justify-center">
+                    <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+                      {/* Product image — glowing animated border */}
+                      <div className="relative mx-auto flex w-full max-w-[14rem] items-center justify-center sm:max-w-[16rem]">
+                        {/* Ambient glow */}
                         <div
-                          className="absolute h-72 w-72 rounded-full blur-3xl"
-                          style={{ background: p.accent, opacity: 0.22 }}
+                          className="absolute inset-0 rounded-[1.5rem] blur-xl animate-pulse"
+                          style={{ background: p.accent, opacity: 0.35 }}
                         />
-                        <a href={`/products/${p.slug}`} className="liquid-glass relative aspect-[4/5] w-full overflow-hidden rounded-[1.75rem] p-5 transition-transform duration-500 ease-luxe hover:scale-[1.02]">
-                          <span className="pointer-events-none absolute inset-x-0 top-0 h-24 rounded-t-[1.75rem] bg-gradient-to-b from-white/35 to-transparent" />
-                          <span className="pointer-events-none absolute inset-0 rounded-[1.75rem] shadow-[inset_0_0_42px_rgba(255,255,255,0.12)]" />
+                        {/* Image fills the box */}
+                        <a
+                          href={`/products/${p.slug}`}
+                          className="glow-border-wrap relative aspect-square w-full transition-transform duration-500 ease-luxe hover:scale-[1.03]"
+                          style={{ "--glow-color": p.accent } as React.CSSProperties}
+                        >
                           <Image
-                            src={p.bottle || p.botanicalImage}
+                            src={HOVER_IMAGES[p.slug] ?? p.bottle ?? p.botanicalImage}
                             alt={`KRIVEDA ${p.name} ${p.type.toLowerCase()}`}
                             fill
-                            sizes="(max-width: 1024px) 80vw, 260px"
-                            className={`drop-shadow-[0_30px_36px_rgba(0,0,0,0.45)] ${
-                              p.bottle ? "object-contain p-8" : "object-cover"
-                            }`}
+                            sizes="(max-width: 1024px) 70vw, 220px"
+                            className="object-contain drop-shadow-[0_20px_28px_rgba(0,0,0,0.5)]"
                             priority={active === 0}
                           />
-                          {!p.bottle && (
-                            <div className="absolute inset-0 bg-gradient-to-t from-botanical-deep/70 via-transparent to-transparent" />
-                          )}
-                          <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-xl">
-                            <p className="text-[0.68rem] font-medium uppercase tracking-luxe text-gold-light">
-                              {p.method}
-                            </p>
-                            <p className="mt-1 font-display text-2xl text-ivory">
-                              {p.name}
-                            </p>
-                          </div>
                         </a>
                       </div>
 
-                      <div>
-                        <p className="text-[0.68rem] font-medium uppercase tracking-luxe text-gold-light">
+                      {/* Name + rating */}
+                      <div className="flex flex-col items-start gap-2.5">
+                        {BESTSELLERS.has(p.slug) && (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-gold-light/40 bg-gold/15 px-3 py-1 text-[0.58rem] font-medium uppercase tracking-widest text-gold-light">
+                            <span className="h-1.5 w-1.5 rounded-full bg-gold-light" />
+                            Bestseller
+                          </span>
+                        )}
+                        <p className="text-[0.65rem] font-medium uppercase tracking-luxe text-gold-light/70">
                           {p.type}
                         </p>
-                        <a href={`/products/${p.slug}`} className="group mt-2 inline-block">
-                          <h3 className="font-display text-4xl text-ivory transition-colors duration-300 group-hover:text-gold-light sm:text-5xl">
+                        <a href={`/products/${p.slug}`} className="group">
+                          <h3 className="font-display text-3xl text-ivory transition-colors duration-300 group-hover:text-gold-light sm:text-4xl">
                             {p.name}
                           </h3>
                         </a>
-                        <p className="mt-3 text-pretty text-base leading-relaxed text-ivory/70">
-                          {p.tagline}
-                        </p>
-
-                        <dl className="mt-7 space-y-4">
-                          {details.map((row) => (
-                            <div
-                              key={row.label}
-                              className="rounded-2xl border border-ivory/10 bg-white/[0.04] px-4 py-3"
-                            >
-                              <dt className="text-[0.64rem] font-medium uppercase tracking-wide2 text-gold-light/80">
-                                {row.label}
-                              </dt>
-                              <dd className="mt-1 text-[0.95rem] leading-relaxed text-ivory/88">
-                                {row.value}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
+                        <Stars rating={RATINGS[p.slug]?.rating ?? 4.7} reviews={RATINGS[p.slug]?.reviews ?? 1000} />
                       </div>
                     </div>
 
-                    <div className="mt-8 grid gap-3 border-t border-ivory/10 pt-6 sm:grid-cols-3">
-                      {points.map((point) => (
-                        <div
-                          key={point}
-                          className="flex min-h-12 items-center justify-center rounded-full border border-gold-light/20 bg-white/[0.06] px-4 py-2.5 text-center text-[0.68rem] font-medium uppercase tracking-wide2 text-ivory/84"
-                        >
-                          {point}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-7 flex items-center justify-between gap-2">
+                    <div className="mt-5 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         {products.map((prod, i) => (
                           <button

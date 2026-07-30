@@ -80,7 +80,7 @@ export default function StoryIntro() {
             <Reveal y={40}>
               <figure className="relative mx-auto aspect-[3/4] w-full max-w-sm overflow-hidden rounded-[2rem] border border-white/50 shadow-[0_50px_90px_-50px_rgba(46,59,44,0.6)]">
                 <Image
-                  src="/images/botanical/threeoil.png"
+                  src="/images/botanical/groupimage.png"
                   alt="A single amber oil bottle in soft natural morning light"
                   fill
                   sizes="(max-width: 768px) 90vw, 30vw"
@@ -91,7 +91,7 @@ export default function StoryIntro() {
                   <span className="text-[0.65rem] uppercase tracking-luxe text-botanical">
                     Single ingredient
                   </span>
-                  <span className="text-[0.65rem] tracking-wide text-gold-deep">
+                  <span className="text-[0.65rem] tracking-wide text-botanical">
                     Clearly named
                   </span>
                 </figcaption>

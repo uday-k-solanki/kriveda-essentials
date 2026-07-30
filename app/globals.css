@@ -167,6 +167,41 @@ html.lenis body {
   }
 }
 
+@keyframes spin-border {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.glow-border-wrap {
+  position: relative;
+  border-radius: 1.4rem;
+  overflow: hidden;
+}
+
+.glow-border-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, transparent 55%, var(--glow-color, #B8912E) 75%, #E6CF8B 85%, transparent 100%);
+  animation: spin-border 3s linear infinite;
+  z-index: 1;
+}
+
+.glow-border-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: calc(1.4rem - 2px);
+  background: transparent;
+  z-index: 2;
+}
+
+.glow-border-wrap > * {
+  position: relative;
+  z-index: 3;
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

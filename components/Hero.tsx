@@ -9,6 +9,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Particles from "./Particles";
+import "./peripheral.css"
 
 /**
  * Each oil is tied to the land that made it. The three product cards float and
@@ -17,52 +18,28 @@ import Particles from "./Particles";
  */
 const slides = [
   {
-    product: "/images/botanical/lavenderfinal.png",
-    scene: "/images/scenery/kashmir.jpg",
-    name: "Lavender",
-    slug: "lavender",
-    origin: "Kashmir Valley",
-    glow: "rgba(125,106,163,0.5)",
-  },
-  {
     product: "/images/botanical/rosemaryfinal.png",
     scene: "/images/scenery/nilgiri.jpg",
-    name: "Rosemary",
-    slug: "rosemary",
-    origin: "Nilgiri Hills",
+    name: "Rosemary Essential Oil",
+    slug: "rosemary essential oil",
+    qty: "15 ml",
     glow: "rgba(111,125,74,0.5)",
-  },
-  {
-    product: "/images/botanical/teatreefinal.png",
-    scene: "/images/scenery/wetland.jpg",
-    name: "Tea Tree",
-    slug: "tea-tree",
-    origin: "New South Wales",
-    glow: "rgba(124,127,62,0.5)",
   },
   {
     product: "/images/botanical/coconut.png",
     scene: "/images/scenery/kerala.jpg",
-    name: "Virgin Coconut",
-    slug: "virgin-coconut",
-    origin: "Kerala Coast",
+    name: "Virgin Coconut Oil",
+    slug: "virgin-coconut Oil",
+    qty: "200 ml",
     glow: "rgba(201,180,134,0.5)",
   },
   {
     product: "/images/botanical/almond.png",
     scene: "/images/scenery/himachal.jpg",
-    name: "Sweet Almond",
-    slug: "sweet-almond",
-    origin: "Himachal Pradesh",
+    name: "Sweet Almond Oil",
+    slug: "sweet-almond Oil",
+    qty: "200 ml",
     glow: "rgba(216,195,155,0.5)",
-  },
-  {
-    product: "/images/botanical/jojoba.png",
-    scene: "/images/scenery/desert.jpg",
-    name: "Jojoba",
-    slug: "jojoba",
-    origin: "Sonoran Desert",
-    glow: "rgba(205,169,78,0.5)",
   },
 ];
 
@@ -73,11 +50,11 @@ type Phase = 0 | 1 | 2;
 // Shows center + right + left, hides the other 3 behind center
 function slot(rel: number, gap: number, total: number) {
   if (rel === 0)
-    return { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1, zIndex: 30 };
+    return { x: 0, y: 0, scale: 1.12, rotate: 0, opacity: 1, zIndex: 30 };
   if (rel === 1)
-    return { x: gap, y: 22, scale: 0.88, rotate: 6, opacity: 0.65, zIndex: 20 };
+    return { x: gap, y: 28, scale: 0.82, rotate: 6, opacity: 0.55, zIndex: 20 };
   if (rel === total - 1)
-    return { x: -gap, y: 22, scale: 0.88, rotate: -6, opacity: 0.65, zIndex: 20 };
+    return { x: -gap, y: 28, scale: 0.82, rotate: -6, opacity: 0.55, zIndex: 20 };
   return { x: 0, y: 0, scale: 0.7, rotate: 0, opacity: 0, zIndex: 10 };
 }
 
@@ -164,7 +141,7 @@ export default function Hero() {
     <section
       id="top"
       ref={ref}
-      className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-botanical-deep px-5 pb-24 pt-28 sm:pt-32"
+      className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-botanical-deep px-5 pb-16 pt-28 sm:pt-32"
     >
       {/* ---------- Background scenery slideshow (slow parallax + intro zoom-out) ---------- */}
       <motion.div
@@ -188,7 +165,7 @@ export default function Hero() {
             >
               <Image
                 src={s.scene}
-                alt={`${s.origin} — origin of KRIVEDA ${s.name} oil`}
+                alt={`KRIVEDA ${s.name} oil — origin scenery`}
                 fill
                 sizes="100vw"
                 priority={i === 0}
@@ -275,21 +252,28 @@ export default function Hero() {
           className="flex flex-col items-center"
         >
           {/* Dark glass backdrop for the headline — always readable regardless of bg image tone */}
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-botanical-deep/60 px-8 py-6 shadow-[0_8px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:px-12 sm:py-8">
+          
             {/* Specular highlight */}
-            <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
+            
             <motion.span
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: introDone ? 1 : 0, y: introDone ? 0 : 14 }}
               transition={{ duration: 0.9, delay: introDone ? 0.15 : 0, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-5 flex items-center justify-center gap-3 font-sans text-[0.7rem] uppercase tracking-luxe text-gold-pale"
+              className="mb-3 flex items-center justify-center gap-3 font-sans text-[0.7rem] normal-case tracking-normal text-gold-pale"
             >
-              <span className="h-px w-8 bg-gold-pale/70" />
-              <span className="text-sm font-medium text-gold-pale/90 sm:text-base">
-                Steam distilled · Cold pressed · Single ingredient
+              <span className="h-px w-8 shrink-0 bg-gold-pale/70" />
+              <span
+                className="whitespace-nowrap text-[0.78rem] font-light tracking-[0.08em] text-gold-pale/75 sm:text-[0.88rem]"
+                style={{ fontFamily: "var(--font-playfair), sans-serif" }}
+                id="hero-heading"
+              >
+                100% Pure
+                <span className="mx-2 opacity-90 text-gilded">·</span>
+                <span className="text-gilded font-normal">Nothing Hidden</span>
+                <span className="mx-2 opacity-90 text-gilded">·</span>
+                Plant-Based
               </span>
-              <span className="h-px w-8 bg-gold-pale/50" />
+              <span className="h-px w-8 shrink-0 bg-gold-pale/50" />
             </motion.span>
 
             <h1 className="font-display text-[clamp(2.5rem,8vw,5.8rem)] font-light leading-[0.9] tracking-[-0.02em] text-ivory">
@@ -300,13 +284,13 @@ export default function Hero() {
                 made it<span className="text-gilded">.</span>
               </Word>
             </h1>
-          </div>
+          
         </motion.div>
 
         {/* ---------- Floating liquid-glass product cards ---------- */}
         <motion.div
           style={{ y: cardsY }}
-          className="relative mx-auto mt-7 flex h-[236px] w-full max-w-2xl items-start justify-center [--bh:122px] [--ch:208px] [--cw:144px] sm:mt-8 sm:h-[256px] sm:[--bh:138px] sm:[--ch:228px] sm:[--cw:162px]"
+          className="relative mx-auto mt-4 flex h-[310px] w-full max-w-2xl items-start justify-center [--bh:151px] [--ch:208px] [--cw:144px] sm:mt-5 sm:h-[340px] sm:[--bh:312px] sm:[--ch:228px] sm:[--cw:162px]"
           role="region"
           aria-roledescription="carousel"
           aria-label="Featured oils by origin"
@@ -324,7 +308,7 @@ export default function Hero() {
                 onMouseLeave={() => setHovered(null)}
                 onFocus={() => setHovered(i)}
                 onBlur={() => setHovered(null)}
-                aria-label={`${b.name} from ${b.origin}`}
+                aria-label={`${b.name} oil`}
                 aria-current={isCenter}
                 initial={{ x: 0, y: 0, scale: 0.4, rotate: 0, opacity: 0 }}
                 animate={pos}
@@ -344,26 +328,28 @@ export default function Hero() {
                     className="absolute inset-0 -z-10 scale-125 rounded-full blur-2xl transition-opacity duration-700"
                     style={{ background: b.glow, opacity: isCenter ? 0.85 : 0.25 }}
                   />
-                  <div className="liquid-glass relative flex h-full w-full flex-col overflow-hidden rounded-[26px] p-3">
+                  <div className="liquid-glass relative flex h-full w-full flex-col overflow-hidden rounded-[26px] mt-10">
                     <span className="pointer-events-none absolute inset-x-0 top-0 h-12 rounded-t-[26px] bg-gradient-to-b from-white/45 to-transparent" />
-                    <div className="flex flex-1 items-center justify-center">
+                    {/* Discount chip — top left */}
+                    {isCenter && introDone && (
+                      <div className="absolute left-2 top-2 z-10">
+                        <span className="inline-flex items-center rounded-full bg-gold/90 px-2 py-0.5 text-[0.55rem] font-semibold uppercase tracking-wide text-botanical-deep shadow-sm">
+                          upto 40% off
+                        </span>
+                      </div>
+                    )}
+                    {/* Product image — fills the full card */}
+                    <div className="flex h-full w-full items-center justify-center">
                       <Image
                         src={b.product}
                         alt={`KRIVEDA ${b.name} oil`}
                         width={300}
                         height={420}
                         priority={i === 0}
-                        className="relative w-auto object-contain drop-shadow-[0_20px_24px_rgba(8,14,9,0.55)]"
+                        className=" relative w-auto object-contain drop-shadow-[0_20px_24px_rgba(8,14,9,0.55)]"
                         style={{ height: "var(--bh)" }}
                       />
                     </div>
-                    {/* Name label — only on center card */}
-                    {isCenter && introDone && (
-                      <div className="pb-1 text-center">
-                        <p className="text-[0.55rem] uppercase tracking-luxe text-gold-pale/80">{b.origin}</p>
-                        <p className="font-display text-[0.95rem] leading-tight text-ivory/90">{b.name}</p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </motion.button>
@@ -371,26 +357,44 @@ export default function Hero() {
           })}
         </motion.div>
 
-        {/* Progress dots */}
+        {/* Product info chip + progress dots + bestseller tag */}
         {introDone && (
           <motion.div
             style={{ y: cardsY }}
-            className="mt-5 flex items-center gap-1.5"
+            className="mt-[-30px] flex flex-col items-center gap-2"
             initial={false}
             animate={{ opacity: introDone ? 1 : 0 }}
           >
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
-                aria-label={`Go to ${slides[i].name}`}
-                className={`rounded-full transition-all duration-500 ease-luxe ${
-                  i === active
-                    ? "h-1.5 w-8 bg-gold-pale"
-                    : "h-1.5 w-1.5 bg-ivory/30 hover:bg-ivory/60"
-                }`}
-              />
-            ))}
+            {/* Name + qty chip — above dots */}
+            <div className="flex items-center gap-2 rounded-full border border-white/15 bg-botanical-deep/50 px-4 py-1.5 backdrop-blur-md">
+              <span className="font-display text-[0.88rem] leading-none text-ivory/90">
+                {slides[active].name}
+              </span>
+              <span className="h-3 w-px bg-ivory/20" />
+              <span className="text-[0.75rem] uppercase tracking-widest text-ivory/50">
+                {slides[active].qty}
+              </span>
+            </div>
+            {/* Dots */}
+            <div className="flex items-center gap-1.5">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActive(i)}
+                  aria-label={`Go to ${slides[i].name}`}
+                  className={`rounded-full transition-all duration-500 ease-luxe ${
+                    i === active
+                      ? "h-1.5 w-8 bg-gold-pale"
+                      : "h-1.5 w-1.5 bg-ivory/30 hover:bg-ivory/60"
+                  }`}
+                />
+              ))}
+            </div>
+            {/* Bestseller tag */}
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-widest text-gold-pale backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-pale" />
+              Bestsellers
+            </span>
           </motion.div>
         )}
 
@@ -402,15 +406,14 @@ export default function Hero() {
           animate={{ opacity: introDone ? 1 : 0, y: introDone ? 0 : 24 }}
           transition={{ duration: 0.9, delay: introDone ? 0.25 : 0, ease: [0.16, 1, 0.3, 1] }}
         >
-          <p className="mt-7 max-w-2xl text-pretty text-[0.98rem] leading-relaxed text-ivory/85 sm:mt-8 sm:text-[1.05rem]">
-            Steam-distilled essential oils and cold-pressed carriers, made with
-            one plant per bottle. No synthetic fragrance. No hidden filler.
+          <p className="mt-4 max-w-2xl text-pretty text-[0.95rem] leading-relaxed text-ivory/75 sm:mt-5 sm:text-[1rem]">
+           Rooted in Nature. Defined by Purity.
           </p>
 
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+          <div className="mt-4 flex flex-col items-center gap-2.5 sm:flex-row sm:gap-4">
             <a
               href="/catalogue"
-              className="group relative inline-flex cursor-pointer items-center gap-3 overflow-hidden rounded-full bg-gold px-8 py-4 text-[0.72rem] font-medium uppercase tracking-wide2 text-botanical-deep shadow-[0_18px_45px_-18px_rgba(184,145,46,0.8)] outline-none transition-transform duration-500 ease-luxe hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-gold-pale focus-visible:ring-offset-2 focus-visible:ring-offset-botanical-deep"
+              className="group relative inline-flex cursor-pointer items-center gap-3 overflow-hidden rounded-full bg-gold px-7 py-3 text-[0.72rem] font-medium uppercase tracking-wide2 text-botanical-deep shadow-[0_18px_45px_-18px_rgba(184,145,46,0.8)] outline-none transition-transform duration-500 ease-luxe hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-gold-pale focus-visible:ring-offset-2 focus-visible:ring-offset-botanical-deep"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-white/0 via-white/40 to-white/0 transition-transform duration-700 ease-luxe group-hover:translate-x-full" />
               Explore Our Products
@@ -418,7 +421,7 @@ export default function Hero() {
             </a>
             <a
               href="#story"
-              className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-ivory/25 px-8 py-4 text-[0.72rem] font-medium uppercase tracking-wide2 text-ivory outline-none backdrop-blur-sm transition-all duration-500 ease-luxe hover:border-gold-pale/70 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold-pale focus-visible:ring-offset-2 focus-visible:ring-offset-botanical-deep"
+              className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-ivory/25 px-7 py-3 text-[0.72rem] font-medium uppercase tracking-wide2 text-ivory outline-none backdrop-blur-sm transition-all duration-500 ease-luxe hover:border-gold-pale/70 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-gold-pale focus-visible:ring-offset-2 focus-visible:ring-offset-botanical-deep"
             >
               Our Story
             </a>
