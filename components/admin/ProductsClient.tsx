@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import type { CMSProduct, CMSCategory } from "@/lib/cms-types";
+import { invalidateCMSCache } from "@/lib/use-cms-products";
 
 interface Props {
   initialProducts: CMSProduct[];
@@ -77,6 +78,7 @@ export default function ProductsClient({ initialProducts, categories }: Props) {
       }
       await fetch("/api/admin/cms", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ products: store.products }) });
       setProducts(store.products);
+      invalidateCMSCache(); // bust client cache so live site reloads fresh
       showToast("Product saved successfully");
       setView("list");
       setEditing(null);

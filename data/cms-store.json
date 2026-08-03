@@ -1,6 +1,6 @@
 {
-  "version": 10,
-  "updatedAt": "2026-08-03T11:50:26.612Z",
+  "version": 14,
+  "updatedAt": "2026-08-03T12:15:12.893Z",
   "announcementBar": {
     "enabled": false,
     "text": "hey this is an annoucement bar",
@@ -21,6 +21,12 @@
       "name": "Carrier Oils",
       "description": "Cold-pressed base oils for blending and daily care.",
       "order": 2
+    },
+    {
+      "id": "herbal-powders",
+      "name": "Herbal Powders",
+      "description": "this are herbal powders",
+      "order": 99
     }
   ],
   "products": [
@@ -323,57 +329,19 @@
       "hoverImage": "/images/botanical/hover/jojoba_hover.png",
       "visible": true,
       "updatedAt": "2026-01-01T00:00:00.000Z"
-    },
-    {
-      "slug": "brownie",
-      "name": "Brownie",
-      "fullName": "Brownie chocolate wadi",
-      "category": "essential",
-      "method": "nothing",
-      "botanical": "mr brownie",
-      "family": "cocoa",
-      "extraction": "picking`",
-      "origin": "somnath",
-      "partUsed": "cocoa beans",
-      "actives": [
-        {
-          "name": "10",
-          "value": "kaju "
-        }
-      ],
-      "purity": "100%",
-      "scent": "good`",
-      "shelf": "12 months",
-      "tagline": "this is a brownie",
-      "benefit": "eat more brownie",
-      "qty": "200g",
-      "originalPrice": 100,
-      "discountedPrice": 80,
-      "discountLabel": "upto 20% off",
-      "isBestseller": true,
-      "accent": "#3f1818",
-      "images": [
-        {
-          "url": "/images/uploads/1785757819218-yd96e7f223.webp",
-          "alt": ""
-        }
-      ],
-      "hoverImage": "/images/uploads/1785757824412-ac73628g31h.webp",
-      "visible": true,
-      "updatedAt": "2026-08-03T11:50:26.596Z"
     }
   ],
   "siteContent": {
     "hero": {
       "eyebrow": "100% Pure · Nothing Hidden · Plant-Based",
-      "headline": "The Earth made it.",
+      "headline": "The Mars made it.",
       "subheadline": "Pure as the plant it came from.",
       "ctaPrimary": "Explore Our Products",
       "ctaSecondary": "Our Story"
     },
     "collection": {
       "eyebrow": "The Collection",
-      "headline": "Six oils. One truth."
+      "headline": "Seven oils. One truth."
     },
     "transparency": {
       "eyebrow": "The Evidence",

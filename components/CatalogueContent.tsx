@@ -20,12 +20,13 @@ export default function CatalogueContent() {
 
   const loading = shopifyLoading || cmsLoading;
 
-  // Merge CMS overrides on top of Shopify products, and filter hidden ones
+  // Merge CMS overrides on top of Shopify products, then append CMS-only products
   const products = useMemo(() => {
-    return shopifyProducts
+    // 1. Shopify products enriched with CMS overrides
+    const merged = shopifyProducts
       .map((p) => {
         const cms = cmsProducts.find((c) => c.slug === p.slug);
-        if (!cms) return p;
+        if (!cms) return { ...p, visible: true };
         return {
           ...p,
           name: cms.name || p.name,
@@ -33,16 +34,47 @@ export default function CatalogueContent() {
           bottle: cms.images[0]?.url || p.bottle,
           botanicalImage: cms.images[1]?.url || p.botanicalImage,
           hoverImage: cms.hoverImage || p.hoverImage,
-          // CMS price overrides Shopify display price
           price: cms.originalPrice || p.price,
           discountedPrice: cms.discountedPrice,
           discountLabel: cms.discountLabel,
           isBestseller: cms.isBestseller,
           visible: cms.visible,
           category: cms.category,
+          botanical: cms.botanical || p.botanical,
         };
       })
-      .filter((p) => (p as typeof p & { visible?: boolean }).visible !== false);
+      .filter((p) => p.visible !== false);
+
+    // 2. CMS-only products (no Shopify variant — added purely from the dashboard)
+    const shopifySlugs = new Set(shopifyProducts.map((p) => p.slug));
+    const cmsOnly = cmsProducts
+      .filter((c) => c.visible && !shopifySlugs.has(c.slug))
+      .map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        type: (c.category === "essential" ? "Essential Oil" : "Carrier Oil") as "Essential Oil" | "Carrier Oil",
+        method: (c.category === "essential" ? "Steam Distilled" : "Cold Pressed") as "Steam Distilled" | "Cold Pressed",
+        botanical: c.botanical,
+        origin: "",
+        benefit: c.benefit,
+        bottle: c.images[0]?.url ?? "",
+        botanicalImage: c.images[1]?.url ?? c.images[0]?.url ?? "",
+        hoverImage: c.hoverImage || undefined,
+        accent: c.accent,
+        // No Shopify variant — cart/checkout disabled
+        variantId: "",
+        price: c.originalPrice,
+        discountedPrice: c.discountedPrice,
+        discountLabel: c.discountLabel,
+        isBestseller: c.isBestseller,
+        currencyCode: "INR",
+        availableForSale: false,
+        shopifyId: "",
+        visible: true,
+        category: c.category,
+      }));
+
+    return [...merged, ...cmsOnly];
   }, [shopifyProducts, cmsProducts]);
 
   // Build filter tabs from CMS categories
