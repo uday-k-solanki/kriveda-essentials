@@ -141,7 +141,7 @@ export default function Hero() {
     <section
       id="top"
       ref={ref}
-      className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-botanical-deep px-5 pb-16 pt-28 sm:pt-32"
+      className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-botanical-deep px-5 pb-16 pt-24 sm:pt-28"
     >
       {/* ---------- Background scenery slideshow (slow parallax + intro zoom-out) ---------- */}
       <motion.div

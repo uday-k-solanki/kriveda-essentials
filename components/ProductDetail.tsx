@@ -7,6 +7,8 @@ import { type Product } from "@/lib/data";
 import { useCart, formatPrice } from "@/lib/cart-context";
 import { getProductByHandle, LOCAL_IMAGES } from "@/lib/shopify";
 
+import { useCMSProduct } from "@/lib/use-cms-products";
+
 const SHOPIFY_HANDLES: Record<string, string> = {
   rosemary: "kriveda-rosemary-essential-oil-pure-steam-distilled-for-hair-growth",
   "tea-tree": "kriveda-tea-tree-essential-oil-100-pure-natural-for-skin-scalp",
@@ -22,6 +24,16 @@ export default function ProductDetail({ product: p }: { product: Product }) {
   const [variantId, setVariantId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string>(`https://kriveda-essentials-4.myshopify.com/cart/${SHOPIFY_HANDLES[p.slug]}:1`);
   const { addToCart, setIsCartOpen } = useCart();
+
+  // CMS overrides — pricing, images, discount label
+  const { product: cms } = useCMSProduct(p.slug);
+  const displayOriginalPrice = cms?.originalPrice || p.price;
+  const displaySalePrice = cms?.discountedPrice ?? Math.round(p.price * 0.6);
+  const discountLabel = cms?.discountLabel || "40% off";
+  const isBestseller = cms?.isBestseller ?? ["virgin-coconut", "sweet-almond", "rosemary"].includes(p.slug);
+  const primaryImage = cms?.images[0]?.url || p.bottle || p.botanicalImage;
+  const hoverImageSrc = cms?.hoverImage || p.hoverImage;
+  const accentColor = cms?.accent || p.accent;
 
   // Fetch real variant ID from Shopify
   useEffect(() => {
@@ -44,9 +56,9 @@ export default function ProductDetail({ product: p }: { product: Product }) {
       name: p.name,
       type: p.type,
       botanical: p.botanical,
-      price: p.price,
-      image: p.bottle || p.botanicalImage,
-      accent: p.accent,
+      price: displaySalePrice,
+      image: primaryImage,
+      accent: accentColor,
     });
     setAdded(true);
     setIsCartOpen(true);
@@ -67,12 +79,12 @@ export default function ProductDetail({ product: p }: { product: Product }) {
           {/* Primary centre glow */}
           <div
             className="absolute left-1/2 top-1/2 h-[80vmax] w-[80vmax] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
-            style={{ background: `radial-gradient(circle, ${p.accent}70, transparent 60%)` }}
+            style={{ background: `radial-gradient(circle, ${accentColor}70, transparent 60%)` }}
           />
           {/* Secondary edge glow */}
           <div
             className="absolute -left-[10%] top-[20%] h-[40vmax] w-[40vmax] rounded-full blur-3xl"
-            style={{ background: `radial-gradient(circle, ${p.accent}40, transparent 65%)` }}
+            style={{ background: `radial-gradient(circle, ${accentColor}40, transparent 65%)` }}
           />
           <div
             className="absolute -right-[10%] bottom-[10%] h-[30vmax] w-[30vmax] rounded-full blur-3xl opacity-60"
@@ -91,7 +103,7 @@ export default function ProductDetail({ product: p }: { product: Product }) {
             {/* Glow halo behind the card */}
             <div
               className="absolute h-80 w-80 rounded-full blur-3xl sm:h-[420px] sm:w-[420px]"
-              style={{ background: p.accent, opacity: 0.35 }}
+              style={{ background: accentColor, opacity: 0.35 }}
               aria-hidden
             />
 
@@ -106,18 +118,18 @@ export default function ProductDetail({ product: p }: { product: Product }) {
 
               {/* Default image */}
               <Image
-                src={p.bottle || p.botanicalImage}
+                src={primaryImage}
                 alt={`KRIVEDA ${p.name} ${p.type.toLowerCase()}`}
                 fill
                 className="object-contain p-6 drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)]"
-                style={{ opacity: hovered && p.hoverImage ? 0 : 1, transition: "opacity 0.5s ease" }}
+                style={{ opacity: hovered && hoverImageSrc ? 0 : 1, transition: "opacity 0.5s ease" }}
                 priority
               />
 
               {/* Hover image */}
-              {p.hoverImage && (
+              {hoverImageSrc && (
                 <Image
-                  src={p.hoverImage}
+                  src={hoverImageSrc}
                   alt={`KRIVEDA ${p.name} hover`}
                   fill
                   className="object-contain p-4"
@@ -128,7 +140,7 @@ export default function ProductDetail({ product: p }: { product: Product }) {
               {/* Bottom inner glow */}
               <div
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-32 rounded-b-[2rem]"
-                style={{ background: `linear-gradient(to top, ${p.accent}30, transparent)` }}
+                style={{ background: `linear-gradient(to top, ${accentColor}30, transparent)` }}
               />
             </div>
           </motion.div>
@@ -141,11 +153,16 @@ export default function ProductDetail({ product: p }: { product: Product }) {
             className="flex flex-col justify-center"
           >
             {/* Eyebrow */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-white/10 px-3 py-1 text-[0.6rem] uppercase tracking-luxe text-gold-light backdrop-blur-sm">
                 {p.method}
               </span>
               <span className="text-[0.6rem] uppercase tracking-luxe text-ivory/50">{p.type}</span>
+              {isBestseller && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-gold/90 px-2.5 py-1 text-[0.55rem] font-semibold uppercase tracking-wide text-botanical-deep">
+                  ★ Bestseller
+                </span>
+              )}
             </div>
 
             {/* Name */}
@@ -159,20 +176,36 @@ export default function ProductDetail({ product: p }: { product: Product }) {
               {p.tagline}
             </p>
 
-            {/* Key facts strip */}
+            {/* Key facts strip — no origin chip */}
             <div className="mt-6 flex flex-wrap gap-2">
-              {[p.origin, p.purity, p.shelf].map((fact) => (
+              {[p.purity, p.shelf].map((fact) => (
                 <span key={fact} className="rounded-full border border-ivory/15 bg-ivory/5 px-3 py-1.5 text-[0.62rem] uppercase tracking-wide text-ivory/60 backdrop-blur-sm">
                   {fact}
                 </span>
               ))}
+              <span className="inline-flex items-center gap-1 rounded-full border border-botanical-mid/40 bg-botanical-mid/10 px-3 py-1.5 text-[0.62rem] uppercase tracking-wide text-ivory/70 backdrop-blur-sm">
+                ⚡ Same Day Shipping
+              </span>
             </div>
 
-            {/* Price */}
-            <div className="mt-8 flex items-baseline gap-3">
-              <span className="font-display text-4xl text-ivory">{formatPrice(p.price)}</span>
-              <span className="text-[0.65rem] uppercase tracking-wide2 text-ivory/45">incl. taxes</span>
-            </div>
+            {/* Price block */}
+            {(() => {
+              const saved = displayOriginalPrice - displaySalePrice;
+              return (
+                <div className="mt-8">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-4xl font-bold text-ivory">₹{displaySalePrice}</span>
+                    <span className="text-lg text-ivory/40 line-through">₹{displayOriginalPrice}</span>
+                    <span className="rounded-full bg-gold/20 px-2.5 py-0.5 text-[0.6rem] font-semibold text-gold-light">
+                      {discountLabel}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[0.62rem] font-medium text-gold-light/80">
+                    You save ₹{saved} · incl. taxes
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* CTA buttons */}
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">

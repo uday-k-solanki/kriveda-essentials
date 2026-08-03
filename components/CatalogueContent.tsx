@@ -4,33 +4,75 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useShopifyProducts } from "@/lib/use-shopify-products";
+import { useCMSProducts } from "@/lib/use-cms-products";
 import { useCart, formatPrice } from "@/lib/cart-context";
 import Reveal from "./Reveal";
 
-type Filter = "all" | "essential" | "carrier";
+type Filter = "all" | string; // supports any category id from CMS
 
 export default function CatalogueContent() {
   const [filter, setFilter] = useState<Filter>("all");
   const [addedSlug, setAddedSlug] = useState<string | null>(null);
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
-  const { products, loading } = useShopifyProducts();
+  const { products: shopifyProducts, loading: shopifyLoading } = useShopifyProducts();
+  const { products: cmsProducts, categories, loading: cmsLoading } = useCMSProducts();
   const { addToCart, setIsCartOpen, isLoading } = useCart();
 
+  const loading = shopifyLoading || cmsLoading;
+
+  // Merge CMS overrides on top of Shopify products, and filter hidden ones
+  const products = useMemo(() => {
+    return shopifyProducts
+      .map((p) => {
+        const cms = cmsProducts.find((c) => c.slug === p.slug);
+        if (!cms) return p;
+        return {
+          ...p,
+          name: cms.name || p.name,
+          accent: cms.accent || p.accent,
+          bottle: cms.images[0]?.url || p.bottle,
+          botanicalImage: cms.images[1]?.url || p.botanicalImage,
+          hoverImage: cms.hoverImage || p.hoverImage,
+          // CMS price overrides Shopify display price
+          price: cms.originalPrice || p.price,
+          discountedPrice: cms.discountedPrice,
+          discountLabel: cms.discountLabel,
+          isBestseller: cms.isBestseller,
+          visible: cms.visible,
+          category: cms.category,
+        };
+      })
+      .filter((p) => (p as typeof p & { visible?: boolean }).visible !== false);
+  }, [shopifyProducts, cmsProducts]);
+
+  // Build filter tabs from CMS categories
+  const filterTabs = useMemo(() => {
+    const sorted = [...categories].sort((a, b) => a.order - b.order);
+    return [{ id: "all", name: "All Oils" }, ...sorted.map((c) => ({ id: c.id, name: c.name }))];
+  }, [categories]);
+
   const filteredProducts = useMemo(() => {
-    if (filter === "essential") return products.filter((p) => p.type === "Essential Oil");
-    if (filter === "carrier") return products.filter((p) => p.type === "Carrier Oil");
-    return products;
+    if (filter === "all") return products;
+    // Match against category id or legacy type strings
+    return products.filter((p) => {
+      const cat = (p as typeof p & { category?: string }).category;
+      if (cat) return cat === filter;
+      if (filter === "essential") return p.type === "Essential Oil";
+      if (filter === "carrier") return p.type === "Carrier Oil";
+      return false;
+    });
   }, [filter, products]);
 
-  const handleAddToCart = async (p: (typeof products)[number]) => {
+  const handleAddToCart = async (p: (typeof products)[number] & { discountedPrice?: number }) => {
     if (!p.variantId) return;
+    const displayPrice = p.discountedPrice ?? p.price;
     await addToCart({
       variantId: p.variantId,
       slug: p.slug,
       name: p.name,
       type: p.type,
       botanical: p.botanical,
-      price: p.price,
+      price: displayPrice,
       image: p.bottle || p.botanicalImage,
       accent: p.accent,
     });
@@ -70,21 +112,17 @@ export default function CatalogueContent() {
         <div className="mx-auto max-w-editorial px-6">
           <Reveal>
             <div className="mb-12 flex flex-wrap items-center gap-3">
-              {([
-                { key: "all", label: "All Oils" },
-                { key: "essential", label: "Essential Oils" },
-                { key: "carrier", label: "Carrier Oils" },
-              ] as { key: Filter; label: string }[]).map((tab) => (
+              {filterTabs.map((tab) => (
                 <button
-                  key={tab.key}
-                  onClick={() => setFilter(tab.key)}
+                  key={tab.id}
+                  onClick={() => setFilter(tab.id)}
                   className={`rounded-full px-5 py-2.5 text-[0.72rem] font-medium uppercase tracking-wide2 transition-all duration-500 ease-luxe ${
-                    filter === tab.key
+                    filter === tab.id
                       ? "bg-botanical-deep text-ivory shadow-lg shadow-botanical-deep/20"
                       : "border border-botanical/15 bg-white/60 text-botanical/70 hover:border-gold/40 hover:text-botanical"
                   }`}
                 >
-                  {tab.label}
+                  {tab.name}
                 </button>
               ))}
             </div>
@@ -137,8 +175,15 @@ export default function CatalogueContent() {
                           </div>
                         )}
                         <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 pt-5">
-                          <span className="font-display text-xl text-gold-deep">0{i + 1}</span>
-                          <span className="rounded-full bg-white/40 px-2.5 py-1 text-[0.55rem] uppercase tracking-luxe text-botanical backdrop-blur-sm">{p.method}</span>
+                          {/* Bestseller or index */}
+                          {(p as typeof p & { isBestseller?: boolean }).isBestseller ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-gold/90 px-2.5 py-1 text-[0.52rem] font-semibold uppercase tracking-wide text-botanical-deep shadow-sm">★ Bestseller</span>
+                          ) : (
+                            <span className="font-display text-xl text-gold-deep">0{i + 1}</span>
+                          )}
+                          <span className="rounded-full bg-botanical-deep/75 px-2.5 py-1 text-[0.52rem] font-bold uppercase tracking-wide text-gold-pale backdrop-blur-sm">
+                            {(p as typeof p & { discountLabel?: string }).discountLabel || "40% off"}
+                          </span>
                         </div>
                       </a>
 
@@ -153,12 +198,30 @@ export default function CatalogueContent() {
                         <span className="shrink-0 text-[0.64rem] font-medium uppercase tracking-wide2 text-gold-deep">{p.type}</span>
                       </a>
 
-                      {/* Price + origin */}
-                      <div className="mt-4 flex items-center justify-between border-t border-botanical/10 pt-4">
-                        <span className="font-display text-xl text-botanical-deep">
-                          {p.price > 0 ? formatPrice(p.price) : "—"}
+                      {/* Price block */}
+                      {p.price > 0 && (() => {
+                        const cmsP = p as typeof p & { discountedPrice?: number; discountLabel?: string };
+                        const original = p.price;
+                        const sale = cmsP.discountedPrice ?? Math.round(original * 0.6);
+                        const saved = original - sale;
+                        const label = cmsP.discountLabel || "40% off";
+                        return (
+                          <div className="mt-3">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-[1.4rem] font-bold leading-none text-botanical-deep">₹{sale}</span>
+                              <span className="text-sm leading-none text-stone-mid line-through">₹{original}</span>
+                              <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[0.52rem] font-semibold text-gold-deep">{label}</span>
+                            </div>
+                            <p className="mt-0.5 text-[0.58rem] font-medium text-gold-deep">Save ₹{saved}</p>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Same day shipping tag */}
+                      <div className="mt-2">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-botanical/20 bg-botanical/5 px-2.5 py-1 text-[0.55rem] font-medium uppercase tracking-wide text-botanical">
+                          ⚡ Same Day Shipping
                         </span>
-                        <span className="text-[0.68rem] font-medium uppercase tracking-wide2 text-stone-deep">{p.origin}</span>
                       </div>
 
                       {/* Action buttons */}

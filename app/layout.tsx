@@ -5,6 +5,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/lib/cart-context";
 import CartDrawer from "@/components/CartDrawer";
 import ScrollProgress from "@/components/ScrollProgress";
+import AnnouncementBar from "@/components/AnnouncementBar";
 
 
 const display = Cormorant_Garamond({
@@ -68,6 +69,7 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${sans.variable} ${playfair.variable}`}>
       <body className="grain antialiased">
         <CartProvider>
+          <AnnouncementBar />
           <SmoothScroll>{children}</SmoothScroll>
           <CartDrawer />
           <ScrollProgress />

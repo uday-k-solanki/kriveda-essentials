@@ -202,6 +202,26 @@ html.lenis body {
   z-index: 3;
 }
 
+/* ── Announcement bar marquee ── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  animation: marquee 22s linear infinite;
+  /* The span contains the text twice for a seamless loop.
+     Width must be ≥ 200% so the second copy covers the gap. */
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

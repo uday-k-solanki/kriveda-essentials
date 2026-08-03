@@ -7,8 +7,14 @@ import Transparency from "@/components/Transparency";
 import Origins from "@/components/Origins";
 import Collection from "@/components/Collection";
 import Footer from "@/components/Footer";
+import { readCMSStore } from "@/lib/cms-server";
+
+export const dynamic = "force-dynamic";
 
 export default function Home() {
+  const store = readCMSStore();
+  const { footer } = store.siteContent;
+
   return (
     <main className="relative">
       <Navbar />
@@ -24,8 +30,11 @@ export default function Home() {
       <Transparency />
       <Origins />
       <Collection />
-      <Footer />
-
+      <Footer
+        closingEyebrow={footer.closingEyebrow}
+        closingHeadline={footer.closingHeadline}
+        closingSubheading={footer.closingSubheading}
+      />
     </main>
   );
 }

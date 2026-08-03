@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Reveal from "./Reveal";
 
@@ -212,7 +212,17 @@ function JournalModal({ entry, onClose }: { entry: JournalEntry; onClose: () => 
   );
 }
 
-export default function Footer() {
+interface FooterProps {
+  closingEyebrow?: string;
+  closingHeadline?: string;
+  closingSubheading?: string;
+}
+
+export default function Footer({
+  closingEyebrow = "The KRIVEDA standard",
+  closingHeadline = "Clear oils. Carefully made.",
+  closingSubheading = "Steam-distilled essential oils and cold-pressed carriers, named clearly from plant to bottle.",
+}: FooterProps) {
   const [activeEntry, setActiveEntry] = useState<JournalEntry | null>(null);
   const [activeLegal, setActiveLegal] = useState<"privacy" | "terms" | null>(null);
 
@@ -268,6 +278,9 @@ export default function Footer() {
         id="contact"
         className="relative overflow-hidden bg-botanical-deep pt-28 text-ivory sm:pt-36"
       >
+        {/* Background watermark — "Kriveda" outlined text */}
+        <WatermarkText />
+
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-0 h-[40vmax] w-[70vmax] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,145,46,0.14),transparent_70%)]" />
         </div>
@@ -275,18 +288,23 @@ export default function Footer() {
         <div className="relative mx-auto max-w-editorial px-6">
           {/* Closing statement */}
           <Reveal>
-            <p className="eyebrow text-gold-light">The KRIVEDA standard</p>
+            <p className="eyebrow text-gold-light">{closingEyebrow}</p>
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="mt-6 max-w-4xl text-balance font-display text-[clamp(2.8rem,8vw,6.5rem)] font-light leading-[0.95]">
-              Clear oils.
-              <span className="text-gilded"> Carefully made.</span>
+              {closingHeadline.includes(".") ? (
+                <>
+                  {closingHeadline.split(".")[0]}.
+                  <span className="text-gilded"> {closingHeadline.split(".").slice(1).join(".").trim()}</span>
+                </>
+              ) : (
+                closingHeadline
+              )}
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-ivory/70">
-              Steam-distilled essential oils and cold-pressed carriers, named
-              clearly from plant to bottle.
+              {closingSubheading}
             </p>
           </Reveal>
 
@@ -321,13 +339,29 @@ export default function Footer() {
               <FooterCol
                 title="Company"
                 links={[
-                  { label: "Contact Us", href: "mailto:krivedaessentials@gmail.com" },
+                  { label: "Contact Us", href: "mailto:support@kriveda.onmicrosoft.com" },
                 ]}
               />
-              {/* Social links moved here to group with Company */}
-              <h4 className="mt-8 text-[0.62rem] uppercase tracking-luxe text-ivory/45">
-                Follow
-              </h4>
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <h4 className="text-[0.62rem] uppercase tracking-luxe text-ivory/45">Contact</h4>
+              <ul className="mt-5 space-y-3 text-sm text-ivory/75">
+                <li>
+                  <a href="mailto:support@kriveda.onmicrosoft.com" className="break-all transition-colors hover:text-gold-light">
+                    support@kriveda.onmicrosoft.com
+                  </a>
+                </li>
+                <li>
+                  ARISTO AURA,IN FRONT OF SANGHANI SKYZ,BESIDE AARNA 84, NAVRACHNA-BHAYLI ROAD VADODARA, GUJARAT 391410
+                </li>
+                <li>
+                  <a href="tel:+917016121585" className="transition-colors hover:text-gold-light">
+                    +91 7016121585
+                  </a>
+                </li>
+                <li className="text-ivory/50">Crafted in India</li>
+              </ul>
+              <h4 className="mt-8 text-[0.62rem] uppercase tracking-luxe text-ivory/45">Follow</h4>
               <ul className="mt-5 space-y-3">
                 <li>
                   <a href="https://www.instagram.com/krivedaessentials_/?hl=en" target="_blank" rel="noopener noreferrer" className="text-sm text-ivory/75 transition-colors hover:text-gold-light">
@@ -339,24 +373,6 @@ export default function Footer() {
                     Facebook
                   </a>
                 </li>
-              </ul>
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <h4 className="text-[0.62rem] uppercase tracking-luxe text-ivory/45">
-                Contact
-              </h4>
-              <ul className="mt-5 space-y-3 text-sm text-ivory/75">
-                <li>
-                  <a href="mailto:krivedaessentials@gmail.com" className="transition-colors hover:text-gold-light break-all sm:break-normal">
-                    krivedaessentials@gmail.com
-                  </a>
-                </li>
-                <li>
-                  <a href="tel:+917016121585" className="transition-colors hover:text-gold-light">
-                    +91 7016121585
-                  </a>
-                </li>
-                <li className="text-ivory/50">Crafted in India</li>
               </ul>
             </div>
           </div>
@@ -582,6 +598,54 @@ Our essential oils and carrier oils are for external use only unless explicitly 
     ],
   },
 };
+
+function WatermarkText() {
+  const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 bottom-0 z-0 flex items-end justify-center overflow-hidden select-none"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setMouse({
+          x: (e.clientX - rect.left) / rect.width,
+          y: (e.clientY - rect.top) / rect.height,
+        });
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ pointerEvents: "auto", height: "340px" }}
+    >
+      {/* Spotlight glow that follows cursor */}
+      {isHovered && (
+        <div
+          className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+          style={{
+            background: `radial-gradient(circle 280px at ${mouse.x * 100}% ${mouse.y * 100}%, rgba(184,145,46,0.18) 0%, transparent 70%)`,
+          }}
+        />
+      )}
+      <span
+        className="block select-none whitespace-nowrap pb-4 font-display font-bold leading-none"
+        style={{
+          fontSize: "clamp(5rem, 22vw, 18rem)",
+          color: "transparent",
+          WebkitTextStroke: "1.5px",
+          WebkitTextStrokeColor: "transparent",
+          backgroundImage: "linear-gradient(135deg, rgba(184,145,46,0.18) 0%, rgba(230,207,139,0.22) 40%, rgba(151,115,22,0.15) 70%, rgba(184,145,46,0.18) 100%)",
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          letterSpacing: "-0.02em",
+          transition: "filter 0.4s ease",
+          filter: isHovered ? "drop-shadow(0 0 40px rgba(184,145,46,0.35))" : "none",
+        }}
+      >
+        Kriveda
+      </span>
+    </div>
+  );
+}
 
 function LegalModal({ type, onClose }: { type: "privacy" | "terms"; onClose: () => void }) {
   const content = legalContent[type];
