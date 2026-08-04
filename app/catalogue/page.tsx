@@ -2,26 +2,26 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CatalogueContent from "@/components/CatalogueContent";
 import { Metadata } from "next";
-import { readCMSStore } from "@/lib/cms-server";
+import { getSiteContent } from "@/lib/sanity-queries";
 
 export const metadata: Metadata = {
-  title: "KRIVEDA Catalogue — Botanical Oils Collection"
+  title: "KRIVEDA Catalogue — Botanical Oils Collection",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
-export default function CataloguePage() {
-  const store = readCMSStore();
-  const { footer } = store.siteContent;
+export default async function CataloguePage() {
+  const siteContent = await getSiteContent();
+  const footer = siteContent?.footer;
 
   return (
     <main className="relative min-h-[100dvh] bg-ivory">
       <Navbar />
       <CatalogueContent />
       <Footer
-        closingEyebrow={footer.closingEyebrow}
-        closingHeadline={footer.closingHeadline}
-        closingSubheading={footer.closingSubheading}
+        closingEyebrow={footer?.closingEyebrow}
+        closingHeadline={footer?.closingHeadline}
+        closingSubheading={footer?.closingSubheading}
       />
     </main>
   );

@@ -67,6 +67,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${playfair.variable}`}>
+      <head>
+        <link rel="icon" href="/images/favicon.png" type="image/png" />
+        <link rel="shortcut icon" href="/images/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" />
+      </head>
       <body className="grain antialiased">
         <CartProvider>
           <AnnouncementBar />

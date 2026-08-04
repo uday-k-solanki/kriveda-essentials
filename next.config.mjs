@@ -9,6 +9,12 @@ const nextConfig = {
         hostname: "cdn.shopify.com",
         pathname: "/**",
       },
+      // Sanity image CDN
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+        pathname: "/**",
+      },
     ],
   },
 };

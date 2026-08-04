@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import CartIcon from "./CartIcon";
+import SpecularButton from "./SpecularButton";
 import { useNavbarTheme } from "@/lib/use-navbar-theme";
+import { useCart } from "@/lib/cart-context";
 
 const homeLinks = [
   { label: "Home", href: "/#top" },
@@ -29,7 +31,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const navTheme = useNavbarTheme();
+  const { setIsCartOpen: setCartOpen } = useCart();
 
   const isHome = pathname === "/";
   const links = isHome ? homeLinks : catalogueLinks;
@@ -104,25 +108,72 @@ export default function Navbar() {
         {/* Right: CTA + cart + hamburger */}
         <div className="flex items-center gap-2">
           {isHome ? (
-            <a
-              href="/catalogue"
-              className={`hidden rounded-full border px-4 py-2 text-[0.7rem] font-medium uppercase tracking-wide2 transition-all duration-300 ease-luxe lg:inline-block ${
-                isDark
-                  ? "border-gold/60 bg-gold/15 text-gold-light hover:bg-gold/25 hover:border-gold/80"
-                  : "border-gold bg-gold/10 text-gold-deep hover:bg-gold/20 hover:border-gold-deep"
-              }`}
-            >
-              Shop
-            </a>
+            <div className="hidden lg:block">
+              <SpecularButton
+                size="sm"
+                radius={999}
+                tint={isDark ? "#B8912E" : "#2E3B2C"}
+                tintOpacity={0.18}
+                blur={8}
+                textColor={isDark ? "#f5e6b8" : "#2E3B2C"}
+                lineColor={isDark ? "#f5e6b8" : "#B8912E"}
+                baseColor={isDark ? "#B8912E" : "#6f7d4a"}
+                intensity={1.2}
+                shineSize={14}
+                shineFade={38}
+                thickness={1}
+                followMouse
+                proximity={200}
+                onClick={() => router.push("/catalogue")}
+              >
+                Shop
+              </SpecularButton>
+            </div>
           ) : (
             <>
-              <a
-                href="/"
-                className={`hidden rounded-full border px-4 py-2 text-[0.7rem] font-medium uppercase tracking-wide2 transition-all duration-300 ease-luxe lg:inline-block ${borderColor} ${textSecondary} ${borderHover}`}
-              >
-                ← Home
-              </a>
-              <CartIcon />
+              <div className="hidden lg:block">
+                <SpecularButton
+                  size="sm"
+                  radius={999}
+                  tint={isDark ? "#ffffff" : "#2E3B2C"}
+                  tintOpacity={0.12}
+                  blur={8}
+                  textColor={isDark ? "#f0ede6" : "#2E3B2C"}
+                  lineColor={isDark ? "#ffffff" : "#6f7d4a"}
+                  baseColor={isDark ? "#888" : "#6f7d4a"}
+                  intensity={1}
+                  shineSize={14}
+                  shineFade={38}
+                  thickness={1}
+                  followMouse
+                  proximity={200}
+                  onClick={() => router.push("/")}
+                >
+                  ← Home
+                </SpecularButton>
+              </div>
+              <div className="relative">
+                <SpecularButton
+                  size="sm"
+                  radius={999}
+                  tint={isDark ? "#ffffff" : "#2E3B2C"}
+                  tintOpacity={0.1}
+                  blur={8}
+                  textColor={isDark ? "#f0ede6" : "#2E3B2C"}
+                  lineColor={isDark ? "#ffffff" : "#6f7d4a"}
+                  baseColor={isDark ? "#888" : "#6f7d4a"}
+                  intensity={1}
+                  shineSize={14}
+                  shineFade={38}
+                  thickness={1}
+                  followMouse
+                  proximity={200}
+                  className="!px-3 !py-2"
+                  onClick={() => setCartOpen(true)}
+                >
+                  <CartIconInline isDark={isDark} />
+                </SpecularButton>
+              </div>
             </>
           )}
           <button
@@ -134,6 +185,12 @@ export default function Navbar() {
             <span className={`h-px w-5 transition-all duration-300 ${hamBg} ${open ? "translate-y-[3px] rotate-45" : ""}`} />
             <span className={`h-px w-5 transition-all duration-300 ${hamBg} ${open ? "-translate-y-[3px] -rotate-45" : ""}`} />
           </button>
+          {/* Mobile cart icon (non-specular for simplicity) */}
+          {!isHome && (
+            <div className="lg:hidden">
+              <CartIcon />
+            </div>
+          )}
         </div>
       </nav>
 
@@ -184,5 +241,25 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </motion.header>
+  );
+}
+
+function CartIconInline({ isDark }: { isDark: boolean }) {
+  const { totalItems } = useCart();
+  return (
+    <span className="relative flex items-center justify-center">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+        style={{ color: isDark ? "#f0ede6" : "#2E3B2C" }}>
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"
+          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M3 6h18M16 10a4 4 0 01-8 0"
+          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {totalItems > 0 && (
+        <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[0.55rem] font-medium text-botanical-deep">
+          {totalItems}
+        </span>
+      )}
+    </span>
   );
 }

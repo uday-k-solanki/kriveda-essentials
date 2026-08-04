@@ -189,7 +189,7 @@ export default function CatalogueContent() {
                     >
                       <span className="absolute inset-x-0 top-0 z-20 h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-gold to-transparent transition-transform duration-700 ease-luxe group-hover:scale-x-100" />
 
-                      {/* Image Stage — click to open product page */}
+                      {/* Image Stage */}
                       <a href={`/products/${p.slug}`} className="relative block h-72 overflow-hidden">
                         <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl transition-all duration-700 group-hover:scale-110" style={{ background: p.accent, opacity: 0.22 }} aria-hidden />
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -197,13 +197,13 @@ export default function CatalogueContent() {
                             src={p.bottle || p.botanicalImage}
                             alt={`KRIVEDA ${p.name} ${p.type.toLowerCase()}`}
                             width={280} height={360}
-                            className="h-[200px] w-[130px] object-contain drop-shadow-[0_26px_34px_rgba(46,59,44,0.35)] group-hover:-translate-y-2 group-hover:scale-[1.02]"
+                            className="h-[250px] w-[190px] object-contain drop-shadow-[0_26px_34px_rgba(46,59,44,0.35)] group-hover:-translate-y-2 group-hover:scale-[1.02]"
                             style={{ opacity: hoveredSlug === p.slug && p.hoverImage ? 0 : 1, transition: "opacity 0.5s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)" }}
                           />
                         </div>
                         {p.hoverImage && (
-                          <div className="absolute inset-0" style={{ opacity: hoveredSlug === p.slug ? 1 : 0, transition: "opacity 0.5s ease" }}>
-                            <Image src={p.hoverImage} alt={`KRIVEDA ${p.name} hover`} fill className="object-contain" />
+                          <div className="absolute inset-0 flex items-center justify-center" style={{ opacity: hoveredSlug === p.slug ? 1 : 0, transition: "opacity 0.5s ease" }}>
+                            <Image src={p.hoverImage} alt={`KRIVEDA ${p.name} hover`} fill className="object-contain p-4" />
                           </div>
                         )}
                         <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-5 pt-5">

@@ -1,9 +1,9 @@
-import { getAnnouncementBar } from "@/lib/cms-server";
+import { getAnnouncementBar } from "@/lib/sanity-queries";
 import AnnouncementBarClient from "./AnnouncementBarClient";
 
-export default function AnnouncementBar() {
-  const bar = getAnnouncementBar();
-  if (!bar.enabled) return null;
+export default async function AnnouncementBar() {
+  const bar = await getAnnouncementBar();
+  if (!bar || !bar.enabled) return null;
 
   return (
     <AnnouncementBarClient

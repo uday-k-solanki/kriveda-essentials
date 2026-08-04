@@ -96,7 +96,7 @@ export default function Transparency() {
             <Reveal delay={0.05}>
               <h2 className="mt-6 font-display text-[clamp(2.6rem,5.5vw,4.75rem)] font-light leading-[0.98] tracking-[-0.01em]">
                 Evidence Before
-                <span className="block text-gilded">Marketing.</span>
+                <span className="block text-gilded">Purchasing.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.1}>

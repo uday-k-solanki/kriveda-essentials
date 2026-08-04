@@ -327,12 +327,12 @@ export default function Footer({
             <FooterCol
               title="The Oils"
               links={[
-                { label: "Rosemary", href: "/catalogue" },
-                { label: "Tea Tree", href: "/catalogue" },
-                { label: "Lavender", href: "/catalogue" },
-                { label: "Jojoba", href: "/catalogue" },
-                { label: "Sweet Almond", href: "/catalogue" },
-                { label: "Virgin Coconut", href: "/catalogue" },
+                { label: "Rosemary Essential Oil", href: "/products/rosemary" },
+                { label: "Tea Tree Essential Oil", href: "/products/tea-tree" },
+                { label: "Lavender Essential Oil", href: "/products/lavender" },
+                { label: "Jojoba Carrier Oil", href: "/products/jojoba" },
+                { label: "Sweet Almond Carrier Oil", href: "/products/sweet-almond" },
+                { label: "Virgin Coconut Carrier Oil", href: "/products/virgin-coconut" },
               ]}
             />
             <div>
@@ -345,21 +345,28 @@ export default function Footer({
             </div>
             <div className="col-span-2 sm:col-span-1">
               <h4 className="text-[0.62rem] uppercase tracking-luxe text-ivory/45">Contact</h4>
-              <ul className="mt-5 space-y-3 text-sm text-ivory/75">
+              <ul className="mt-5 space-y-4 text-sm text-ivory/75">
                 <li>
+                  <p className="mb-1 text-[0.58rem] uppercase tracking-luxe text-ivory/40">Email</p>
                   <a href="mailto:support@kriveda.onmicrosoft.com" className="break-all transition-colors hover:text-gold-light">
                     support@kriveda.onmicrosoft.com
                   </a>
                 </li>
                 <li>
-                  ARISTO AURA,IN FRONT OF SANGHANI SKYZ,BESIDE AARNA 84, NAVRACHNA-BHAYLI ROAD VADODARA, GUJARAT 391410
+                  <p className="mb-1 text-[0.58rem] uppercase tracking-luxe text-ivory/40">Address</p>
+                  <span className="leading-relaxed">
+                    ARISTO AURA, In front of Sanghani Skyz,<br />
+                    Beside Aarna 84, Navrachna-Bhayli Road,<br />
+                    Vadodara, Gujarat 391410
+                  </span>
                 </li>
                 <li>
+                  <p className="mb-1 text-[0.58rem] uppercase tracking-luxe text-ivory/40">Phone</p>
                   <a href="tel:+917016121585" className="transition-colors hover:text-gold-light">
                     +91 7016121585
                   </a>
                 </li>
-                <li className="text-ivory/50">Crafted in India</li>
+                <li className="text-ivory/40 text-[0.72rem]">Crafted in India</li>
               </ul>
               <h4 className="mt-8 text-[0.62rem] uppercase tracking-luxe text-ivory/45">Follow</h4>
               <ul className="mt-5 space-y-3">
