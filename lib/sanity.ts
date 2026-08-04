@@ -1,4 +1,4 @@
-import { createClient } from "next-sanity";
+import { createClient } from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
@@ -11,15 +11,6 @@ export const client = createClient({
   dataset,
   apiVersion,
   useCdn: true,
-});
-
-// Use this client for pages that need fresh data (ISR revalidation, etc.)
-export const previewClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token: process.env.SANITY_API_READ_TOKEN,
 });
 
 const builder = imageUrlBuilder(client);
