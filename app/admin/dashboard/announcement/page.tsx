@@ -1,9 +1,4 @@
-import { readCMSStore } from "@/lib/cms-server";
-import AnnouncementClient from "@/components/admin/AnnouncementClient";
-
-export const dynamic = "force-dynamic";
-
-export default async function AnnouncementPage() {
-  const store = readCMSStore();
-  return <AnnouncementClient initial={store.announcementBar} />;
+import { redirect } from "next/navigation";
+export default function AnnouncementPage() {
+  redirect("https://kriveda.sanity.studio");
 }
