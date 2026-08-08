@@ -77,7 +77,7 @@ export default function CartDrawer() {
                                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6H10M6 2V10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>
                                 </button>
                               </div>
-                              <span className="font-display text-lg text-botanical-deep">{formatPrice(item.price * item.quantity)}</span>
+                              <span className="font-sans text-base font-bold text-botanical-deep">{formatPrice(item.price * item.quantity)}</span>
                             </div>
                           </div>
                         </motion.div>
@@ -92,7 +92,7 @@ export default function CartDrawer() {
                 <div className="border-t border-botanical/10 px-6 py-5">
                   <div className="flex items-baseline justify-between">
                     <span className="text-[0.65rem] uppercase tracking-wide2 text-stone-mid">Subtotal</span>
-                    <span className="font-display text-2xl text-botanical-deep">{formatPrice(totalPrice)}</span>
+                    <span className="font-sans text-xl font-bold text-botanical-deep">{formatPrice(totalPrice)}</span>
                   </div>
                   <p className="mt-1 text-[0.6rem] text-stone-mid/60">Shipping calculated at checkout</p>
                   {checkoutUrl ? (

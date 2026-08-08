@@ -1,39 +1,39 @@
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type Product } from "@/lib/data";
-import { useCart, formatPrice } from "@/lib/cart-context";
-import { getProductByHandle, LOCAL_IMAGES } from "@/lib/shopify";
-
-import { useCMSProduct } from "@/lib/use-cms-products";
+import { useCart } from "@/lib/cart-context";
+import { getProductByHandle } from "@/lib/shopify";
+import ProductGallery from "./ProductGallery";
+import { PRODUCT_GALLERY } from "@/lib/product-images";
+import { PRODUCT_CONFIG, getSavings } from "@/lib/product-config";
 
 const SHOPIFY_HANDLES: Record<string, string> = {
-  rosemary: "kriveda-rosemary-essential-oil-pure-steam-distilled-for-hair-growth",
-  "tea-tree": "kriveda-tea-tree-essential-oil-100-pure-natural-for-skin-scalp",
-  lavender: "kriveda-lavender-essential-oil-pure-calming-steam-distilled",
+  rosemary:         "kriveda-rosemary-essential-oil-pure-steam-distilled-for-hair-growth",
+  "tea-tree":       "kriveda-tea-tree-essential-oil-100-pure-natural-for-skin-scalp",
+  lavender:         "kriveda-lavender-essential-oil-pure-calming-steam-distilled",
   "virgin-coconut": "kriveda-virgin-coconut-oil-cold-pressed-traditionally-crafted-from-kerala-coconuts",
-  "sweet-almond": "kriveda-sweet-almond-oil-cold-pressed-pure-nourishing",
-  jojoba: "kriveda-jojoba-oil-golden-cold-pressed-lightweight",
+  "sweet-almond":   "kriveda-sweet-almond-oil-cold-pressed-pure-nourishing",
+  jojoba:           "kriveda-jojoba-oil-golden-cold-pressed-lightweight",
 };
 
 export default function ProductDetail({ product: p }: { product: Product }) {
-  const [added, setAdded] = useState(false);
+  const [added, setAdded]       = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "actives" | "usage">("details");
   const [variantId, setVariantId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string>(`https://kriveda-essentials-4.myshopify.com/cart/${SHOPIFY_HANDLES[p.slug]}:1`);
   const { addToCart, setIsCartOpen } = useCart();
 
-  // CMS overrides — pricing, images, discount label
-  const { product: cms } = useCMSProduct(p.slug);
-  const displayOriginalPrice = cms?.originalPrice || p.price;
-  const displaySalePrice = cms?.discountedPrice ?? Math.round(p.price * 0.6);
-  const discountLabel = cms?.discountLabel || "40% off";
-  const isBestseller = cms?.isBestseller ?? ["virgin-coconut", "sweet-almond", "rosemary"].includes(p.slug);
-  const primaryImage = cms?.images[0]?.url || p.bottle || p.botanicalImage;
-  const hoverImageSrc = cms?.hoverImage || p.hoverImage;
-  const accentColor = cms?.accent || p.accent;
+  // Pricing from central config
+  const meta             = PRODUCT_CONFIG[p.slug];
+  const displayOriginalPrice = meta?.originalPrice   ?? p.price;
+  const displaySalePrice     = meta?.discountedPrice  ?? p.price;
+  const discountLabel        = meta?.discountLabel    ?? "";
+  const isBestseller         = meta?.isBestseller     ?? false;
+  const primaryImage         = (p as typeof p & { bottle?: string }).bottle ?? p.botanicalImage;
+  const hoverImageSrc        = p.hoverImage;
+  const accentColor          = p.accent;
 
   // Fetch real variant ID from Shopify
   useEffect(() => {
@@ -65,7 +65,6 @@ export default function ProductDetail({ product: p }: { product: Product }) {
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const [hovered, setHovered] = useState(false);
 
   return (
     <div className="relative min-h-[100dvh]">
@@ -93,54 +92,28 @@ export default function ProductDetail({ product: p }: { product: Product }) {
         </div>
 
         <div className="relative mx-auto grid max-w-editorial grid-cols-1 gap-12 px-6 pb-20 pt-8 lg:grid-cols-2 lg:gap-20 lg:pb-28">
-          {/* ── Liquid glass image card ── */}
+          {/* ── Product Gallery ── */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="relative flex items-center justify-center"
           >
-            {/* Glow halo behind the card */}
+            {/* Glow halo — same as before */}
             <div
               className="absolute h-80 w-80 rounded-full blur-3xl sm:h-[420px] sm:w-[420px]"
               style={{ background: accentColor, opacity: 0.35 }}
               aria-hidden
             />
-
-            {/* Liquid glass card */}
-            <div
-              className="liquid-glass relative flex h-[400px] w-[260px] cursor-pointer items-center justify-center overflow-hidden rounded-[2rem] sm:h-[480px] sm:w-[320px]"
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-            >
-              {/* Specular highlight */}
-              <span className="pointer-events-none absolute inset-x-0 top-0 h-16 rounded-t-[2rem] bg-gradient-to-b from-white/40 to-transparent" />
-
-              {/* Default image */}
-              <Image
-                src={primaryImage}
-                alt={`KRIVEDA ${p.name} ${p.type.toLowerCase()}`}
-                fill
-                className="object-contain p-6 drop-shadow-[0_40px_60px_rgba(0,0,0,0.6)]"
-                style={{ opacity: hovered && hoverImageSrc ? 0 : 1, transition: "opacity 0.5s ease" }}
-                priority
-              />
-
-              {/* Hover image */}
-              {hoverImageSrc && (
-                <Image
-                  src={hoverImageSrc}
-                  alt={`KRIVEDA ${p.name} hover`}
-                  fill
-                  className="object-contain p-4"
-                  style={{ opacity: hovered ? 1 : 0, transition: "opacity 0.5s ease" }}
-                />
-              )}
-
-              {/* Bottom inner glow */}
-              <div
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-32 rounded-b-[2rem]"
-                style={{ background: `linear-gradient(to top, ${accentColor}30, transparent)` }}
+            <div className="relative">
+              <ProductGallery
+                images={
+                  PRODUCT_GALLERY[p.slug]?.length
+                    ? PRODUCT_GALLERY[p.slug]
+                    : [primaryImage, ...(hoverImageSrc ? [hoverImageSrc] : [])]
+                }
+                productName={p.name}
+                accent={accentColor}
               />
             </div>
           </motion.div>
@@ -190,7 +163,7 @@ export default function ProductDetail({ product: p }: { product: Product }) {
 
             {/* Price block */}
             {(() => {
-              const saved = displayOriginalPrice - displaySalePrice;
+              const saved = getSavings(p.slug);
               return (
                 <div className="mt-8">
                   <div className="flex items-baseline gap-3">

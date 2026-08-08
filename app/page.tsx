@@ -7,15 +7,8 @@ import Transparency from "@/components/Transparency";
 import Origins from "@/components/Origins";
 import Collection from "@/components/Collection";
 import Footer from "@/components/Footer";
-import { getSiteContent } from "@/lib/sanity-queries";
 
-// Revalidate every 60 seconds — new ISR, no more force-dynamic
-export const revalidate = 60;
-
-export default async function Home() {
-  const siteContent = await getSiteContent();
-  const footer = siteContent?.footer;
-
+export default function Home() {
   return (
     <main className="relative">
       <Navbar />
@@ -30,11 +23,7 @@ export default async function Home() {
       <Transparency />
       <Origins />
       <Collection />
-      <Footer
-        closingEyebrow={footer?.closingEyebrow}
-        closingHeadline={footer?.closingHeadline}
-        closingSubheading={footer?.closingSubheading}
-      />
+      <Footer />
     </main>
   );
 }

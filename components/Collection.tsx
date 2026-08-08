@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Reveal from "./Reveal";
 import { products } from "@/lib/data";
+import { PRODUCT_CONFIG, getSavings } from "@/lib/product-config";
 
 const BESTSELLERS = new Set(["virgin-coconut", "sweet-almond", "rosemary"]);
 
@@ -16,20 +17,14 @@ const RATINGS: Record<string, { rating: number; reviews: number }> = {
   jojoba:           { rating: 4.7, reviews: 1673 },
 };
 
-const PRODUCT_META: Record<string, { fullName: string; qty: string }> = {
-  rosemary:         { fullName: "Rosemary Essential Oil",    qty: "15 ml"  },
-  "tea-tree":       { fullName: "Tea Tree Essential Oil",    qty: "15 ml"  },
-  lavender:         { fullName: "Lavender Essential Oil",    qty: "15 ml"  },
-  "virgin-coconut": { fullName: "Virgin Coconut Oil",        qty: "200 ml" },
-  "sweet-almond":   { fullName: "Sweet Almond Oil",          qty: "200 ml" },
-  jojoba:           { fullName: "Jojoba Oil",                qty: "100 ml" },
+const FULL_NAMES: Record<string, string> = {
+  rosemary:         "Rosemary Essential Oil",
+  "tea-tree":       "Tea Tree Essential Oil",
+  lavender:         "Lavender Essential Oil",
+  "virgin-coconut": "Virgin Coconut Oil",
+  "sweet-almond":   "Sweet Almond Oil",
+  jojoba:           "Jojoba Oil",
 };
-
-const DISCOUNT = 0.40;
-
-function discounted(price: number) {
-  return Math.round(price * (1 - DISCOUNT));
-}
 
 function Stars({ rating }: { rating: number }) {
   const full  = Math.floor(rating);
@@ -79,12 +74,14 @@ export default function Collection() {
 
         <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p, i) => {
-            const sale    = discounted(p.price);
-            const saved   = p.price - sale;
-            const pct     = Math.round(DISCOUNT * 100);
-            const rData   = RATINGS[p.slug];
-            const isBS    = BESTSELLERS.has(p.slug);
-            const meta    = PRODUCT_META[p.slug];
+            const cfg   = PRODUCT_CONFIG[p.slug];
+            const sale  = cfg?.discountedPrice ?? p.price;
+            const orig  = cfg?.originalPrice   ?? p.price;
+            const saved = getSavings(p.slug);
+            const label = cfg?.discountLabel   ?? "";
+            const qty   = cfg?.qty             ?? "";
+            const rData = RATINGS[p.slug];
+            const isBS  = cfg?.isBestseller ?? BESTSELLERS.has(p.slug);
 
             return (
               <Reveal key={p.slug} delay={(i % 3) * 0.08} y={36}>
@@ -137,7 +134,7 @@ export default function Collection() {
                       )}
                       {/* Discount badge */}
                       <span className="rounded-full bg-botanical-deep/80 px-2.5 py-1 text-[0.55rem] font-bold uppercase tracking-wide text-gold-pale backdrop-blur-sm">
-                        {pct}% off
+                        {label}
                       </span>
                     </div>
                   </div>
@@ -147,7 +144,7 @@ export default function Collection() {
 
                     {/* 1 — Full product name */}
                     <h3 className="font-display text-[1.45rem] leading-tight text-botanical-deep transition-colors duration-300 group-hover:text-gold-deep">
-                      {meta?.fullName ?? p.name}
+                      {FULL_NAMES[p.slug] ?? p.name}
                     </h3>
 
                     {/* 2 — Qty + type inline */}
@@ -157,7 +154,7 @@ export default function Collection() {
                       </span>
                       <span className="h-2.5 w-px bg-stone-mid/30" />
                       <span className="text-[0.6rem] font-medium uppercase tracking-wide2 text-stone-mid">
-                        {meta?.qty}
+                        {qty}
                       </span>
                     </div>
 
@@ -176,10 +173,10 @@ export default function Collection() {
                         ₹{sale}
                       </span>
                       <span className="text-sm leading-none text-stone-mid line-through">
-                        ₹{p.price}
+                        ₹{orig}
                       </span>
                       <span className="rounded-full bg-gold/15 px-1.5 py-0.5 text-[0.55rem] font-semibold text-gold-deep">
-                        {pct}% off
+                        {label}
                       </span>
                     </div>
 
